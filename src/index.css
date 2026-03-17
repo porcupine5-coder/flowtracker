@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light Mode (Warm Linen) - Default Fallback */
+:root {
+  --bg: #fff7ed;
+  --surface: #ffedd5;
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  --secondary: #ea580c;
+  --accent: #0369a1;
+  --text: #431407;
+  --text-muted: #fb923c;
+  --border: #fed7aa;
+  --border-strong: #fdba74;
+  
+  /* Transition variables */
+  --transition-speed: 0.6s;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode (Twilight Mist) - Default Fallback */
+html.dark {
+  --bg: #1a1625;
+  --surface: #2d2438;
+  --primary: #9d7cd8;
+  --primary-hover: #b08ee0;
+  --secondary: #7aa2f7;
+  --accent: #ff9e64;
+  --text: #dcd7e8;
+  --text-muted: #9d97b0;
+  --border: #3d3352;
+  --border-strong: #4e4468;
+}
+
+body {
+  font-family: "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background var(--transition-speed) var(--transition-timing),
+              color var(--transition-speed) var(--transition-timing);
+}
+
+/* Phase Specific Animations & Effects */
+
+/* Period Phase: Glow effect */
+.phase-menstrual .glow-effect {
+  box-shadow: 0 0 20px 2px var(--glow);
+  transition: box-shadow var(--transition-speed) var(--transition-timing);
+}
+
+/* Follicular Phase: Rising gradient animation */
+.phase-follicular .rising-gradient {
+  background: linear-gradient(0deg, var(--secondary) 0%, transparent 100%);
+  background-size: 100% 200%;
+  animation: risingGradient 4s ease-in-out infinite alternate;
+}
+
+@keyframes risingGradient {
+  from { background-position: 0% 100%; }
+  to { background-position: 0% 0%; }
+}
+
+/* Ovulation Phase: Dynamic accent highlights */
+.phase-ovulation .accent-highlight {
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  opacity: 0.1;
+}
+
+/* Global transitions for UI elements */
+* {
+  transition: background-color var(--transition-speed) var(--transition-timing),
+              border-color var(--transition-speed) var(--transition-timing),
+              color var(--transition-speed) var(--transition-timing),
+              box-shadow var(--transition-speed) var(--transition-timing),
+              opacity var(--transition-speed) var(--transition-timing);
+}
+
+/* Ensure these transitions don't break specific animations */
+.parallax-star, .animate-bounce, .animate-pulse, .animate-spin {
+  transition: none !important;
+}
+
+.theme-toggle {
+  display: inline-block;
+  --width-of-switch: 3.2em;
+  --height-of-switch: 1.8em;
+  --size-of-icon: 1.2em;
+  --slider-offset: 0.25em;
+  position: relative;
+  width: var(--width-of-switch);
+  height: var(--height-of-switch);
+}
+
+.theme-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-toggle .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.theme-toggle .slider:before {
+  position: absolute;
+  content: "";
+  height: var(--size-of-icon);
+  width: var(--size-of-icon);
+  border-radius: 999px;
+  left: var(--slider-offset);
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(40deg, var(--primary), var(--secondary) 70%);
+  transition: left 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.theme-toggle input:focus-visible + .slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle input:checked + .slider {
+  background: var(--surface);
+  border-color: var(--border-strong);
+}
+
+.theme-toggle input:checked + .slider:before {
+  left: calc(100% - (var(--size-of-icon) + var(--slider-offset)));
+  background: var(--primary);
+  box-shadow:
+    inset -3px -2px 5px -2px rgba(255, 255, 255, 0.45),
+    inset -9px -4px 0 0 rgba(122, 162, 247, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.22);
+}
+
+/* Auth styles are now inline in SignInForm component for better design control */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* AI Assistant Floating Window Styles */
+.ai-assistant-window {
+  position: fixed;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ai-assistant-window.dragging {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22), 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.ai-assistant-backdrop {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(2px);
+  background: rgba(250, 248, 245, 0.12);
+  pointer-events: none;
+  z-index: 45;
+}
+
+.ai-draggable {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.ai-assistant-fab {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: #e8711a;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(232, 113, 26, 0.35);
+  transition: transform 0.2s ease;
+  animation: aiPulse 2.5s ease-in-out infinite;
+}
+
+.ai-assistant-fab:hover {
+  transform: scale(1.08);
+}
+
+@keyframes aiPulse {
+  0% { box-shadow: 0 0 0 0 rgba(232, 113, 26, 0.4), 0 8px 24px rgba(232, 113, 26, 0.35); }
+  100% { box-shadow: 0 0 0 12px rgba(232, 113, 26, 0), 0 8px 24px rgba(232, 113, 26, 0.35); }
+}
+
+.ai-drag-handle {
+  height: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.ai-drag-handle-pill {
+  width: 36px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  display: block;
+}
+
+.ai-suggestion-pill {
+  background: rgba(232, 113, 26, 0.08);
+  border: 1px solid rgba(232, 113, 26, 0.2);
+  color: #c2600f;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  transition: all 0.2s ease;
+}
+
+.ai-suggestion-pill:hover {
+  background: rgba(232, 113, 26, 0.15);
+  transform: translateY(-1px);
+}
+
+.ai-chat-input {
+  border-radius: 50px;
+  border: 1.5px solid #e8e0d8;
+  background: #ffffff;
+  padding: 12px 48px 12px 18px;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.ai-chat-input:focus {
+  border-color: #e8711a;
+  box-shadow: 0 0 0 3px rgba(232, 113, 26, 0.12);
+}
+
+.ai-send-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #e8711a;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ai-empty-state {
+  position: relative;
+}
+
+.ai-empty-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ai-empty-dots span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(232, 113, 26, 0.06);
+  animation: floatDots 6s ease-in-out infinite;
+}
+
+.ai-empty-dots span:nth-child(1) { top: 12%; left: 18%; animation-delay: 0s; }
+.ai-empty-dots span:nth-child(2) { top: 28%; right: 20%; animation-delay: 0.8s; }
+.ai-empty-dots span:nth-child(3) { bottom: 22%; left: 26%; animation-delay: 1.6s; }
+.ai-empty-dots span:nth-child(4) { bottom: 18%; right: 30%; animation-delay: 2.4s; }
+.ai-empty-dots span:nth-child(5) { top: 52%; left: 46%; animation-delay: 3.2s; }
+.ai-empty-dots span:nth-child(6) { top: 64%; right: 38%; animation-delay: 4s; }
+
+@keyframes floatDots {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-8px); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .ai-assistant-sheet {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .ai-drag-handle {
+    height: 44px;
+    padding-top: 12px;
+  }
+}
+
+/* Scrollbar for AI messages */
+.ai-messages-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ai-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ai-messages-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.ai-messages-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
