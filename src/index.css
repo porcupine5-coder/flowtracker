@@ -188,8 +188,11 @@ body {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+.ai-assistant-fab.dragging,
 .ai-assistant-window.dragging {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22), 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: none !important;
+  user-select: none;
 }
 
 .ai-assistant-backdrop {

@@ -82,14 +82,21 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
 
   // Track layout
   useEffect(() => {
+    let layoutTimer: number;
     const updateLayout = () => {
-      const width = window.innerWidth;
-      setIsMobile(width <= 480);
-      setIsTablet(width > 480 && width <= 1024);
+      window.clearTimeout(layoutTimer);
+      layoutTimer = window.setTimeout(() => {
+        const width = window.innerWidth;
+        setIsMobile(width <= 480);
+        setIsTablet(width > 480 && width <= 1024);
+      }, 50);
     };
     updateLayout();
     window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+      window.clearTimeout(layoutTimer);
+    };
   }, []);
 
   // Initialize position to bottom right or localStorage
@@ -116,29 +123,48 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
   // Keep position in viewport on resize
   useEffect(() => {
     const handleResize = () => {
+      if (isCompact) return;
       const target = windowRef.current;
-      if (!target || isMobile || isTablet) return;
+      if (!target) return;
+      
       const rect = target.getBoundingClientRect();
       const maxX = Math.max(0, window.innerWidth - rect.width);
       const maxY = Math.max(0, window.innerHeight - rect.height);
+      
       setPosition((prev) => ({
         x: Math.min(Math.max(0, prev.x), maxX),
         y: Math.min(Math.max(0, prev.y), maxY),
       }));
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile, isTablet]);
+    
+    let resizeTimer: number;
+    const debouncedResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(handleResize, 100);
+    };
+
+    window.addEventListener("resize", debouncedResize);
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+      window.clearTimeout(resizeTimer);
+    };
+  }, [isCompact]);
 
   const startDrag = (e: React.PointerEvent, type: "window" | "bubble" | "handle") => {
-    if (isCompact && type === "bubble") {
+    // Disable dragging on mobile/tablet for the bubble and handle
+    if (isCompact && (type === "bubble" || type === "handle")) {
       return;
     }
-    if (isTablet && type === "handle") {
-      return;
-    }
+    
     const targetEl = type === "bubble" ? bubbleRef.current : windowRef.current;
     if (!targetEl) return;
+
+    // Use setPointerCapture to ensure we keep receiving events even if the pointer leaves the element
+    try {
+      targetEl.setPointerCapture(e.pointerId);
+    } catch (err) {
+      console.warn("Failed to set pointer capture:", err);
+    }
 
     const rect = targetEl.getBoundingClientRect();
     dragStateRef.current = {
@@ -150,16 +176,20 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       offsetY: e.clientY - rect.top,
       moved: false,
     };
+    
     setDragOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     });
+    
     setIsDragging(true);
+    
     if (isMobile && isOpen && type === "handle") {
       setIsSheetDragging(true);
     }
-    e.currentTarget.setPointerCapture(e.pointerId);
+    
     document.body.style.userSelect = "none";
+    document.body.style.touchAction = "none"; // Prevent scrolling while dragging
     document.body.style.cursor = "grabbing";
   };
 
@@ -168,13 +198,16 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
 
     const handlePointerMove = (e: PointerEvent) => {
       if (dragStateRef.current.pointerId !== e.pointerId) return;
-      e.preventDefault();
-
+      
       const deltaX = e.clientX - dragStateRef.current.startX;
       const deltaY = e.clientY - dragStateRef.current.startY;
-      if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+      
+      // Threshold to distinguish between a tap and a drag
+      if (!dragStateRef.current.moved && (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5)) {
         dragStateRef.current.moved = true;
       }
+
+      if (!dragStateRef.current.moved) return;
 
       if (isMobile && isOpen && dragStateRef.current.type === "handle") {
         setSheetDragY(Math.max(0, deltaY));
@@ -182,13 +215,16 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       }
 
       const targetEl = dragStateRef.current.type === "bubble" ? bubbleRef.current : windowRef.current;
-      const rect = targetEl?.getBoundingClientRect();
-      const width = rect?.width ?? (dragStateRef.current.type === "bubble" ? 52 : 360);
-      const height = rect?.height ?? (dragStateRef.current.type === "bubble" ? 52 : 580);
+      if (!targetEl) return;
 
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+      const rect = targetEl.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
 
+      const newX = e.clientX - dragStateRef.current.offsetX;
+      const newY = e.clientY - dragStateRef.current.offsetY;
+
+      // Robust bounds checking
       const constrainedX = Math.max(0, Math.min(newX, window.innerWidth - width));
       const constrainedY = Math.max(0, Math.min(newY, window.innerHeight - height));
 
@@ -197,11 +233,15 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
 
     const handlePointerUp = (e: PointerEvent) => {
       if (dragStateRef.current.pointerId !== e.pointerId) return;
-      const didMove = dragStateRef.current.moved;
+      
       const dragType = dragStateRef.current.type;
+      const didMove = dragStateRef.current.moved;
+      
       setIsDragging(false);
       setIsSheetDragging(false);
+      
       document.body.style.userSelect = "";
+      document.body.style.touchAction = "";
       document.body.style.cursor = "";
 
       if (isMobile && isOpen && dragType === "handle") {
@@ -209,22 +249,37 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           setIsOpen(false);
         }
         setSheetDragY(0);
-        return;
       }
 
-      if (!isMobile && !isTablet && didMove) {
+      if (!isCompact && didMove) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(position));
       }
+      
+      dragStateRef.current.pointerId = null;
+    };
+
+    const handlePointerCancel = (e: PointerEvent) => {
+      if (dragStateRef.current.pointerId !== e.pointerId) return;
+      
+      setIsDragging(false);
+      setIsSheetDragging(false);
+      setSheetDragY(0);
+      document.body.style.userSelect = "";
+      document.body.style.touchAction = "";
+      document.body.style.cursor = "";
+      dragStateRef.current.pointerId = null;
     };
 
     document.addEventListener("pointermove", handlePointerMove, { passive: false });
     document.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("pointercancel", handlePointerCancel);
 
     return () => {
       document.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("pointercancel", handlePointerCancel);
     };
-  }, [isDragging, dragOffset, isMobile, isTablet, isOpen, position, sheetDragY]);
+  }, [isDragging, isMobile, isCompact, isOpen, position, sheetDragY]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -275,12 +330,14 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
             if (dragStateRef.current.moved) return;
             setIsOpen(true);
           }}
-          className={`ai-assistant-fab fixed z-40 flex items-center justify-center group ${isCompact ? "" : "ai-draggable"}`}
+          className={`ai-assistant-fab fixed z-40 flex items-center justify-center group ${
+            isCompact ? "" : "ai-draggable"
+          } ${isDragging && dragStateRef.current.type === "bubble" ? "dragging" : ""}`}
           title="Open AI Assistant"
           style={
             isCompact
-              ? { bottom: "20px", right: "20px" }
-              : { left: `${position.x}px`, top: `${position.y}px` }
+              ? { bottom: "20px", right: "20px", touchAction: "manipulation" }
+              : { left: `${position.x}px`, top: `${position.y}px`, touchAction: "none" }
           }
         >
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 rounded-full transition-colors" />
