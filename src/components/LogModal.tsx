@@ -74,12 +74,12 @@ export function LogModal({ date, onClose }: LogModalProps) {
     try {
       await updateDailyLog({
         date,
-        flow: flow === "" ? undefined : (flow as any),
+        flow: flow === "" ? undefined : flow,
         symptoms: symptoms.length > 0 ? symptoms : undefined,
-        mood: mood === "" ? undefined : (mood as any),
+        mood: mood === "" ? undefined : mood,
         notes: notes || undefined,
-        temperature: temperature === "" ? undefined : (temperature as number),
-        cervicalMucus: cervicalMucus === "" ? undefined : (cervicalMucus as any),
+        temperature: temperature === "" ? undefined : temperature,
+        cervicalMucus: cervicalMucus === "" ? undefined : cervicalMucus,
       });
 
       if (flow && flow !== "none" && (!dailyLog?.flow || dailyLog.flow === "none")) {
@@ -246,7 +246,7 @@ export function LogModal({ date, onClose }: LogModalProps) {
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={() => void handleSave()}
             disabled={isSaving}
             className="flex-1 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >

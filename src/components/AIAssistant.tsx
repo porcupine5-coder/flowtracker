@@ -46,6 +46,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [sheetDragY, setSheetDragY] = useState(0);
   const [isSheetDragging, setIsSheetDragging] = useState(false);
   
@@ -77,14 +78,18 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Track mobile layout
+  const isCompact = isMobile || isTablet;
+
+  // Track layout
   useEffect(() => {
-    const updateMobile = () => {
-      setIsMobile(window.innerWidth <= 480);
+    const updateLayout = () => {
+      const width = window.innerWidth;
+      setIsMobile(width <= 480);
+      setIsTablet(width > 480 && width <= 1024);
     };
-    updateMobile();
-    window.addEventListener("resize", updateMobile);
-    return () => window.removeEventListener("resize", updateMobile);
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
   // Initialize position to bottom right or localStorage
@@ -112,7 +117,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
   useEffect(() => {
     const handleResize = () => {
       const target = windowRef.current;
-      if (!target || isMobile) return;
+      if (!target || isMobile || isTablet) return;
       const rect = target.getBoundingClientRect();
       const maxX = Math.max(0, window.innerWidth - rect.width);
       const maxY = Math.max(0, window.innerHeight - rect.height);
@@ -123,10 +128,13 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isMobile]);
+  }, [isMobile, isTablet]);
 
   const startDrag = (e: React.PointerEvent, type: "window" | "bubble" | "handle") => {
-    if (isMobile && !isOpen && type === "bubble") {
+    if (isCompact && type === "bubble") {
+      return;
+    }
+    if (isTablet && type === "handle") {
       return;
     }
     const targetEl = type === "bubble" ? bubbleRef.current : windowRef.current;
@@ -204,7 +212,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
         return;
       }
 
-      if (!isMobile && didMove) {
+      if (!isMobile && !isTablet && didMove) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(position));
       }
     };
@@ -216,7 +224,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       document.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [isDragging, dragOffset, isMobile, isOpen, position, sheetDragY]);
+  }, [isDragging, dragOffset, isMobile, isTablet, isOpen, position, sheetDragY]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -245,7 +253,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
   };
 
@@ -262,15 +270,15 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       {!isOpen && (
         <button
           ref={bubbleRef}
-          onPointerDown={(e) => startDrag(e, "bubble")}
+          onPointerDown={isCompact ? undefined : (e) => startDrag(e, "bubble")}
           onClick={() => {
             if (dragStateRef.current.moved) return;
             setIsOpen(true);
           }}
-          className="ai-assistant-fab ai-draggable fixed z-40 flex items-center justify-center group"
+          className={`ai-assistant-fab fixed z-40 flex items-center justify-center group ${isCompact ? "" : "ai-draggable"}`}
           title="Open AI Assistant"
           style={
-            isMobile
+            isCompact
               ? { bottom: "20px", right: "20px" }
               : { left: `${position.x}px`, top: `${position.y}px` }
           }
@@ -294,19 +302,20 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
             isDragging ? "dragging" : ""
           } ${isMobile ? "ai-assistant-sheet" : ""}`}
           style={{
-            left: isMobile ? "0px" : `${position.x}px`,
-            top: isMobile ? "auto" : `${position.y}px`,
-            bottom: isMobile ? "0px" : "auto",
-            width: isMobile ? "100vw" : "360px",
-            height: isMinimized ? "56px" : isMobile ? "85vh" : "580px",
+            left: isMobile ? "0px" : isTablet ? "auto" : `${position.x}px`,
+            right: isTablet ? "24px" : "auto",
+            top: isMobile ? "auto" : isTablet ? "auto" : `${position.y}px`,
+            bottom: isMobile ? "0px" : isTablet ? "24px" : "auto",
+            width: isMobile ? "100vw" : isTablet ? "min(480px, 92vw)" : "360px",
+            height: isMinimized ? "56px" : isMobile ? "85vh" : isTablet ? "70vh" : "580px",
             transform: isMobile ? `translateY(${sheetDragY}px)` : "none",
             transition: isMobile && isSheetDragging ? "none" : "transform 0.25s ease",
           }}
         >
           {/* Drag Handle */}
           <div
-            onPointerDown={(e) => startDrag(e, "handle")}
-            className="ai-drag-handle ai-draggable"
+            onPointerDown={isTablet ? undefined : (e) => startDrag(e, "handle")}
+            className={`ai-drag-handle ${isTablet ? "" : "ai-draggable"}`}
           >
             <span className="ai-drag-handle-pill" />
           </div>
@@ -455,7 +464,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                     style={{ maxHeight: "100px" }}
                   />
                   <button
-                    onClick={handleSend}
+                    onClick={() => void handleSend()}
                     disabled={!input.trim() || isLoading}
                     className="ai-send-button disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 flex-shrink-0"
                   >

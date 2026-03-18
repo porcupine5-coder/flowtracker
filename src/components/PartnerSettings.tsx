@@ -102,7 +102,7 @@ export function PartnerSettings() {
                   Cancel
                 </button>
                 <button
-                  onClick={handleSave}
+                  onClick={() => void handleSave()}
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-medium hover:from-pink-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl"
                 >
                   Save

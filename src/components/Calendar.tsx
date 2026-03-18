@@ -178,13 +178,13 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
   };
 
   return (
-    <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-md p-6 hover:shadow-lg transition-all duration-500">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-[var(--primary)] transition-colors duration-500">
-          {monthNames[month]} {year}
-        </h2>
-        <div className="flex items-center gap-2">
+      <div className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-md p-6 md:p-7 hover:shadow-lg transition-all duration-500">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 md:mb-7">
+          <h2 className="text-xl md:text-2xl font-bold text-[var(--primary)] transition-colors duration-500">
+            {monthNames[month]} {year}
+          </h2>
+          <div className="flex items-center gap-2">
           <button
             onClick={previousMonth}
             className="p-2 rounded-lg hover:bg-[var(--border)] transition-all duration-200 text-[var(--text-muted)] hover:text-[var(--text)] hover:scale-110 active:scale-95"
@@ -217,16 +217,16 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
       </div>
 
       {/* Day names */}
-      <div className="grid grid-cols-7 gap-2 mb-3">
+      <div className="grid grid-cols-7 gap-2 md:gap-3 mb-3">
         {dayNames.map((day) => (
-          <div key={day} className="text-center text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider py-2">
+          <div key={day} className="text-center text-xs md:text-sm font-semibold text-[var(--text-muted)] uppercase tracking-wider py-2">
             {day}
           </div>
         ))}
       </div>
 
       {/* Days grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-2 md:gap-3">
         {renderCalendarDays()}
       </div>
 

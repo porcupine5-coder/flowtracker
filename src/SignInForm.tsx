@@ -61,7 +61,7 @@ export function SignInForm() {
       </div>
 
       {/* Form */}
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
         {/* Email Field */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[var(--text)]">
