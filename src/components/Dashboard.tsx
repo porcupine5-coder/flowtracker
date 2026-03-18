@@ -7,6 +7,7 @@ import { CycleOverview } from "./CycleOverview";
 import { PredictionCard } from "./PredictionCard";
 import { AIAssistant } from "./AIAssistant";
 import { SettingsPanel } from "./SettingsPanel";
+import { DailyCare } from "./DailyCare";
 
 export function Dashboard() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -69,7 +70,9 @@ export function Dashboard() {
             onDateSelect={handleDateSelect}
             logs={recentLogs}
             cycles={cycles}
+            userSettings={userSettings}
           />
+          <DailyCare />
         </div>
         <div className="space-y-5 md:space-y-6">
           <CycleOverview

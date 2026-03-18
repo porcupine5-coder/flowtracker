@@ -65,6 +65,14 @@ const applicationTables = {
   })
     .index("by_email", ["toEmail"])
     .index("by_user", ["fromUserId"]),
+
+  recommendationInteractions: defineTable({
+    userId: v.id("users"),
+    recommendationId: v.string(),
+    action: v.union(v.literal("view"), v.literal("like"), v.literal("dismiss")),
+    timestamp: v.string(),
+  })
+    .index("by_user", ["userId"]),
 };
 
 export default defineSchema({

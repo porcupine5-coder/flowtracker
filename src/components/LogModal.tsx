@@ -1,7 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
+import { 
+  symptomRecommendations, 
+  moodRecommendations,
+  Recommendation 
+} from "../lib/recommendations";
 
 interface LogModalProps {
   date: string;
@@ -41,8 +46,11 @@ const cervicalMucusOptions = [
 export function LogModal({ date, onClose }: LogModalProps) {
   const dailyLog = useQuery(api.cycles.getDailyLog, { date });
   const currentPhase = useQuery(api.cycles.getCurrentPhase, { date });
+   const userSettings = useQuery(api.cycles.getUserSettings);
+  const cycles = useQuery(api.cycles.getCycles);
   const updateDailyLog = useMutation(api.cycles.updateDailyLog);
   const startNewCycle = useMutation(api.cycles.startNewCycle);
+  const endPeriodEarly = useMutation(api.cycles.manualEndCurrentCycle);
 
   const [flow, setFlow] = useState<"none" | "light" | "medium" | "heavy" | "">("");
   const [symptoms, setSymptoms] = useState<string[]>([]);
@@ -51,6 +59,40 @@ export function LogModal({ date, onClose }: LogModalProps) {
   const [temperature, setTemperature] = useState<number | "">("");
   const [cervicalMucus, setCervicalMucus] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+
+  const liveRecommendations = useMemo(() => {
+    const list: Recommendation[] = [];
+    symptoms.forEach(s => {
+      if (symptomRecommendations[s]) {
+        list.push(...symptomRecommendations[s]);
+      }
+    });
+    if (mood && moodRecommendations[mood]) {
+      list.push(...moodRecommendations[mood]);
+    }
+    // Deduplicate by ID
+    const unique = Array.from(new Map(list.map(item => [item.id, item])).values());
+    return unique.slice(0, 2);
+  }, [symptoms, mood]);
+
+  // Check if this date is part of an active period
+  const activeCycle = cycles?.[0];
+  const isDateInActivePeriod = activeCycle && !activeCycle.endDate && (() => {
+    const start = new Date(activeCycle.startDate);
+    const check = new Date(date);
+    const diff = Math.floor((check.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return diff >= 0 && diff < (userSettings?.averagePeriodLength || 5);
+  })();
+
+  const handleEndPeriodEarly = async () => {
+    try {
+      await endPeriodEarly({ endDate: date });
+      toast.success("Period marked as ended");
+      onClose();
+    } catch {
+      toast.error("Failed to end period early");
+    }
+  };
 
   useEffect(() => {
     if (dailyLog) {
@@ -76,10 +118,10 @@ export function LogModal({ date, onClose }: LogModalProps) {
         date,
         flow: flow === "" ? undefined : flow,
         symptoms: symptoms.length > 0 ? symptoms : undefined,
-        mood: mood === "" ? undefined : mood,
+        mood: mood === "" ? undefined : mood as "happy" | "sad" | "anxious" | "irritated" | "energetic" | "tired",
         notes: notes || undefined,
         temperature: temperature === "" ? undefined : temperature,
-        cervicalMucus: cervicalMucus === "" ? undefined : cervicalMucus,
+        cervicalMucus: cervicalMucus === "" ? undefined : cervicalMucus as "dry" | "sticky" | "creamy" | "watery" | "egg-white",
       });
 
       if (flow && flow !== "none" && (!dailyLog?.flow || dailyLog.flow === "none")) {
@@ -88,7 +130,7 @@ export function LogModal({ date, onClose }: LogModalProps) {
 
       toast.success("Log saved successfully");
       onClose();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save log. Please try again.");
     } finally {
       setIsSaving(false);
@@ -117,6 +159,14 @@ export function LogModal({ date, onClose }: LogModalProps) {
             <p className="text-xs text-[var(--text-muted)] mt-0.5">{formatDate(date)}</p>
           </div>
           <div className="flex items-center gap-2">
+            {isDateInActivePeriod && (
+              <button
+                onClick={() => void handleEndPeriodEarly()}
+                className="text-[10px] font-bold px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors uppercase tracking-wider"
+              >
+                End Period Early
+              </button>
+            )}
             {currentPhase && (
               <span className={`text-xs font-medium px-2.5 py-1 rounded-full border capitalize ${phaseColors[currentPhase] || ""}`}>
                 {currentPhase} phase
@@ -224,6 +274,24 @@ export function LogModal({ date, onClose }: LogModalProps) {
               className="w-full sm:w-40 px-3 py-2.5 border border-[var(--border)] rounded-xl text-sm bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-20 focus:border-[var(--primary)] outline-none transition-all"
             />
           </Section>
+
+          {/* Live Recommendations */}
+          {liveRecommendations.length > 0 && (
+            <div className="bg-[var(--primary)]/5 border border-[var(--primary)]/10 rounded-2xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <p className="text-[10px] font-bold text-[var(--primary)] uppercase tracking-wider mb-2.5">Immediate Care Tips</p>
+              <div className="space-y-3">
+                {liveRecommendations.map((rec: Recommendation) => (
+                  <div key={rec.id} className="flex items-start gap-3">
+                    <span className="text-lg">{rec.icon}</span>
+                    <div>
+                      <p className="text-xs font-bold text-[var(--text)]">{rec.title}</p>
+                      <p className="text-[11px] text-[var(--text-muted)] leading-tight">{rec.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Notes */}
           <Section title="Notes">

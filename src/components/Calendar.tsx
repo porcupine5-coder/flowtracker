@@ -4,9 +4,10 @@ interface CalendarProps {
   onDateSelect: (date: string) => void;
   logs: any[];
   cycles: any[];
+  userSettings: any;
 }
 
-export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
+export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarProps) {
   const [viewMode, setViewMode] = useState<"month" | "year">(() => {
     const saved = localStorage.getItem("calendarViewMode");
     return (saved as "month" | "year") || "month";
@@ -45,11 +46,25 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
 
   const getPeriodDays = (dateString: string) => {
     if (!cycles || cycles.length === 0) return 0;
+    const periodLength = userSettings?.averagePeriodLength || 5;
+    
     for (const cycle of cycles) {
       const startDate = new Date(cycle.startDate);
       const checkDate = new Date(dateString);
       const daysDiff = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (daysDiff >= 0 && daysDiff < 5) return daysDiff + 1;
+      
+      // If the cycle has a manual end date
+      if (cycle.endDate) {
+        const endDate = new Date(cycle.endDate);
+        if (checkDate >= startDate && checkDate <= endDate) {
+          return daysDiff + 1;
+        }
+      } else {
+        // Otherwise use predicted length
+        if (daysDiff >= 0 && daysDiff < periodLength) {
+          return daysDiff + 1;
+        }
+      }
     }
     return 0;
   };
@@ -85,9 +100,16 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
       let borderClass = "rounded-2xl";
       let animClass = "";
 
-      if (isPeriod && log?.flow && log.flow !== "none") {
-        bgClass = "bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500";
-        textClass = "text-white font-semibold";
+      if (isPeriod) {
+        if (log?.flow && log.flow !== "none") {
+          // Logged period day
+          bgClass = "bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500 shadow-md";
+          textClass = "text-white font-bold";
+        } else {
+          // Predicted period day (not yet logged or no flow)
+          bgClass = "bg-red-500/20 dark:bg-red-900/30 border border-red-300 dark:border-red-800";
+          textClass = "text-red-600 dark:text-red-400 font-medium";
+        }
         const blobShapes = ["rounded-[35%_65%_30%_70%]", "rounded-[60%_40%_70%_30%]", "rounded-[40%_60%_60%_40%]"];
         borderClass = blobShapes[periodDay % blobShapes.length];
       } else if (isSelected) {
@@ -164,8 +186,14 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
         let ringClass = "";
 
         if (isPeriod) {
-          bgClass = "bg-red-500 shadow-sm";
-          textClass = "text-white";
+          const log = logs.find(l => l.date === dateString);
+          if (log?.flow && log.flow !== "none") {
+            bgClass = "bg-red-500 shadow-sm";
+            textClass = "text-white";
+          } else {
+            bgClass = "bg-red-200 dark:bg-red-900/40 border border-red-400/30";
+            textClass = "text-red-700 dark:text-red-300";
+          }
         } else if (isFertile) {
           bgClass = "bg-emerald-500 shadow-sm";
           textClass = "text-white";
@@ -303,7 +331,11 @@ export function Calendar({ onDateSelect, logs, cycles }: CalendarProps) {
       <div className="flex flex-wrap items-center gap-6 mt-8 pt-6 border-t border-[var(--border)]">
         <div className="flex items-center gap-3 group cursor-default">
           <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500 shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Period</span>
+          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Logged Period</span>
+        </div>
+        <div className="flex items-center gap-3 group cursor-default">
+          <div className="w-5 h-5 rounded-lg bg-red-500/20 border border-red-300 shadow-sm transition-transform group-hover:scale-110" />
+          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Predicted Period</span>
         </div>
         <div className="flex items-center gap-3 group cursor-default">
           <div className="w-5 h-5 rounded-lg bg-[var(--accent)] opacity-80 ring-2 ring-[var(--primary)] animate-ring-pulse shadow-sm transition-transform group-hover:scale-110" />

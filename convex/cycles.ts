@@ -294,6 +294,33 @@ export const updateDailyLog = mutation({
   },
 });
 
+export const manualEndCurrentCycle = mutation({
+  args: {
+    endDate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const currentCycle = await ctx.db
+      .query("cycles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .first();
+
+    if (!currentCycle) throw new Error("No active cycle found");
+
+    const startDate = new Date(currentCycle.startDate);
+    const endDate = new Date(args.endDate);
+    const cycleLength = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    await ctx.db.patch(currentCycle._id, {
+      endDate: args.endDate,
+      length: cycleLength,
+    });
+  },
+});
+
 export const getRecentLogs = query({
   args: {},
   handler: async (ctx) => {
@@ -305,6 +332,24 @@ export const getRecentLogs = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .take(30); // Last 30 days
+  },
+});
+
+export const trackRecommendationInteraction = mutation({
+  args: {
+    recommendationId: v.string(),
+    action: v.union(v.literal("view"), v.literal("like"), v.literal("dismiss")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    await ctx.db.insert("recommendationInteractions", {
+      userId,
+      recommendationId: args.recommendationId,
+      action: args.action,
+      timestamp: new Date().toISOString(),
+    });
   },
 });
 
