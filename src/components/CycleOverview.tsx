@@ -1,4 +1,4 @@
-import { getCurrentPhase, getCycleDay } from "../lib/cycle";
+import { getCycleDay } from "../lib/cycle";
 import { useTheme } from "./useTheme";
 
 interface CycleOverviewProps {
@@ -34,7 +34,7 @@ const phaseInfo: Record<string, { label: string; color: string; bg: string; desc
   },
 };
 
-export function CycleOverview({ settings, cycles, recentLogs }: CycleOverviewProps) {
+export function CycleOverview({ settings }: CycleOverviewProps) {
   const { phase: currentPhase } = useTheme();
 
   const currentCycleDay = getCycleDay({

@@ -1,15 +1,114 @@
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
+import { Authenticated, AuthLoading, Unauthenticated, useQuery, useConvexAuth } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { SignInForm } from "./SignInForm";
 import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
 import { Dashboard } from "./components/Dashboard";
 import { ParallaxBackground } from "./components/ParallaxBackground";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider } from "./components/ThemeManager";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
+function LoadingScreen({ darkMode, message = "Loading your dashboard..." }: { darkMode: boolean; message?: string }) {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg)] z-[9999]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative w-12 h-12">
+          <div className="absolute inset-0 border-4 border-indigo-200/30 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
+        </div>
+        <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'} animate-pulse`}>
+          {message}
+        </p>     
+      </div>
+    </div>
+  );
+}
+
+function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
+  const loggedInUser = useQuery(api.auth.loggedInUser);
+
+  if (loggedInUser === undefined) {
+    return <LoadingScreen darkMode={darkMode} message="Identifying user..." />;
+  }
+
+  return (
+    <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="low">
+      <div className="min-h-screen flex flex-col">
+        <header className="sticky top-0 z-30 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)] px-4 py-3 md:px-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/20 border border-white/20">
+                <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  FlowTracker
+                </h1>
+                <p className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-widest">Menstrual Health</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2.5 rounded-xl hover:bg-[var(--bg)] text-[var(--text-muted)] hover:text-[var(--primary)] transition-all duration-300 active:scale-90"
+              >
+                {darkMode ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.243 17.657l.707.707M6.343 6.343l.707-.707m12.728 0l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                )}
+              </button>
+              <SignOutButton />
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 p-4 md:p-6 lg:p-8 relative">
+          <div className="max-w-5xl lg:max-w-6xl mx-auto">
+            <Dashboard />
+          </div>
+        </main>
+      </div>
+    </ParallaxBackground>
+  );
+}
+
+function UnauthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
+  return (
+    <ParallaxBackground isDarkMode={darkMode} speed={0.8}>
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div className="w-full max-w-md md:max-w-lg">
+          <div className="flex flex-col items-center mb-8 md:mb-10">
+            <div className="w-24 h-24 rounded-[2rem] overflow-hidden shadow-2xl shadow-indigo-500/30 border-4 border-white mb-6 transform hover:rotate-6 transition-transform duration-500">
+              <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover rounded-xl" />
+            </div>
+            <h1 className="text-4xl font-extrabold text-[var(--text)] tracking-tight mb-2">FlowTracker</h1>
+            <p className="text-[var(--text-muted)] font-medium tracking-wide">Empowering your wellness journey</p>
+          </div>
+          
+          <div className="bg-[var(--surface)] rounded-3xl p-8 md:p-10 shadow-2xl border border-[var(--border)] backdrop-blur-md">
+            <SignInForm />
+          </div>
+          
+          <div className="mt-8 text-center">
+            <button
+              onClick={toggleDarkMode}
+              className="px-4 py-2 rounded-full bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/20 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--primary)] transition-all"
+            >
+              {darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ParallaxBackground>
+  );
+}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
+  const { isLoading, isAuthenticated } = useConvexAuth();
 
   useEffect(() => {
     const isDark = localStorage.getItem("darkMode") === "true";
@@ -30,142 +129,35 @@ export default function App() {
     }
   };
 
-  return (
-    <ThemeProvider darkMode={darkMode}>
-      <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] transition-colors duration-200">
-        <Authenticated>
-          <AuthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        </Authenticated>
-        <Unauthenticated>
-          <UnauthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        </Unauthenticated>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              color: "var(--text)",
-              borderRadius: "10px",
-              fontSize: "14px",
-            },
-          }}
-        />
-      </div>
-    </ThemeProvider>
-  );
-}
-
-function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
-  const loggedInUser = useQuery(api.auth.loggedInUser);
+  if (isLoading) {
+    return <LoadingScreen darkMode={darkMode} message="Securing your connection..." />;
+  }
 
   return (
-    <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="low">
-      <div className="min-h-screen flex flex-col">
-        <header className="sticky top-0 z-20 bg-[var(--surface)] border-b border-[var(--border)] h-14 flex items-center justify-between px-4 md:px-6 lg:px-8 transition-colors">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-[var(--border)] shadow-sm">
-              <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
-            </div>
-            <span className="text-base font-semibold text-[var(--text)] tracking-tight">FlowTracker</span>
-          </div>    
-          <div className="flex items-center gap-3">
-            {loggedInUser && (
-              <span className="hidden sm:block text-sm text-[var(--text-muted)] truncate max-w-[180px]">
-                {loggedInUser.email || loggedInUser.name}
-              </span>
-            )}
-            <label className="theme-toggle" title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
-              <input
-                type="checkbox"
-                checked={darkMode}
-                onChange={toggleDarkMode}
-                aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-              />
-              <span className="slider" />
-            </label>
-            <SignOutButton />
-          </div>
-        </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
-          {loggedInUser === undefined ? (
-            <LoadingScreen darkMode={darkMode} />
+    <ErrorBoundary>
+      <ThemeProvider darkMode={darkMode}>
+        <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 relative">
+          {isAuthenticated ? (
+            <AuthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           ) : (
-            <div className="max-w-5xl lg:max-w-6xl mx-auto animate-fade-in">
-              <Dashboard />
-            </div>
+            <UnauthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
           )}
-        </main>
-      </div>
-    </ParallaxBackground>
-  );
-}
 
-function UnauthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
-  return (
-    <ParallaxBackground isDarkMode={darkMode} speed={0.8}>
-      <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
-        <div className="w-full max-w-md md:max-w-lg animate-slide-up">
-          {/* Theme Toggle */}
-          <div className="absolute top-6 right-6 z-30">
-            <label className="theme-toggle" title={darkMode ? "Switch to light mode" : "Switch to dark mode"}>
-              <input
-                type="checkbox"
-                checked={darkMode}
-                onChange={toggleDarkMode}
-                aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-              />
-              <span className="slider" />
-            </label>
-          </div>
-          
-          {/* Header */}
-          <div className="text-center mb-10 md:mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-6 shadow-xl overflow-hidden border-2 border-[var(--primary)]/20 p-1">
-              <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover rounded-xl" />
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-[var(--text)] mb-2 tracking-tight">FlowTracker</h1>
-            <p className="text-base md:text-lg text-[var(--text-muted)] font-medium">Intelligent cycle tracking & wellness insights</p>
-          </div>
-
-          {/* Form Card */}
-          <div className="bg-[var(--surface)] rounded-3xl p-8 md:p-10 shadow-2xl border border-[var(--border)] backdrop-blur-md">
-            <SignInForm />
-          </div>
-
-          {/* Footer Message */}
-          <div className="mt-8 text-center space-y-3">
-            <p className="text-sm text-[var(--text-muted)]">
-              Your health data is <span className="font-semibold text-[var(--text)]">completely private</span>
-            </p>
-            <div className="flex items-center justify-center gap-4 text-xs text-[var(--text-muted)]">
-              <div className="flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-[var(--primary)]" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                End-to-end encrypted
-              </div>
-              <div className="flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-[var(--primary)]" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                HIPAA compliant
-              </div>
-            </div>
-          </div>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                borderRadius: "10px",
+                fontSize: "14px",
+              },
+            }}
+          />
         </div>
-      </div>
-    </ParallaxBackground>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
-  function LoadingScreen({ darkMode }: { darkMode: boolean }) {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-        <p className={`text-sm text-${darkMode ? 'gray-300' : 'gray-400'}`}>Loading your dashboard...</p>     
-      </div>
-    </div>
-  );
-}

@@ -28,7 +28,7 @@ export function PartnerSettings() {
       
       toast.success("Partner settings updated successfully!");
       setIsOpen(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to update partner settings");
     }
   };

@@ -1,12 +1,3 @@
-import { CyclePhase } from "./cycle";
-
-// Helper function to get a random property from an object
-function getRandomProperty<T>(obj: Record<string, T>): T {
-  const keys = Object.keys(obj);
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  return obj[randomKey];
-}
-
 export const themes = {
   light: {
     cloudMinimal: {

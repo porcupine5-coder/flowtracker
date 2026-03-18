@@ -44,7 +44,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
   const [draftConfig, setDraftConfig] = useState<BotConfig>(DEFAULT_BOT);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
+  const [_dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [sheetDragY, setSheetDragY] = useState(0);

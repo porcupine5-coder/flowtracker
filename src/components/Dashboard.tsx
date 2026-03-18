@@ -30,62 +30,83 @@ export function Dashboard() {
     setSelectedDate(null);
   };
 
-  if (!userSettings || !cycles || !recentLogs) {
+  if (userSettings === undefined || cycles === undefined || recentLogs === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[var(--border)] border-t-[var(--primary)] rounded-full animate-spin"></div>
-          <p className="text-sm text-[var(--text-muted)]">Loading...</p>
+      <div className="flex items-center justify-center min-h-[400px] w-full bg-[var(--bg)]/50 backdrop-blur-sm rounded-3xl border border-[var(--border)]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative w-10 h-10">
+            <div className="absolute inset-0 border-3 border-[var(--primary)]/20 rounded-full"></div>
+            <div className="absolute inset-0 border-3 border-t-[var(--primary)] rounded-full animate-spin"></div>
+          </div>
+          <p className="text-sm font-medium text-[var(--text-muted)]">Synchronizing cycle data...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-5">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-[var(--text)]">Dashboard</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-          </p>
-        </div>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--text-muted)] bg-[var(--surface)] border border-[var(--border)] rounded-lg hover:bg-[var(--border)] transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span className="hidden sm:inline">Settings</span>
-        </button>
-      </div>
+  // Handle empty states gracefully if queries return null (but finished loading)
+  const safeSettings = userSettings || {
+    averageCycleLength: 28,
+    averagePeriodLength: 5,
+    lastPeriodStart: undefined,
+  };
+  const safeCycles = cycles || [];
+  const safeLogs = recentLogs || [];
 
-      {/* Main Grid */}
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 md:w-16 md:h-16 rounded-[2rem] bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-[var(--primary)]/20 rotate-3 transform hover:rotate-6 transition-transform">
+            🌸
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight">
+              Welcome back, {isShreeya ? "Shreeya" : (loggedInUser?.name || "Friend")}
+            </h1>
+            <p className="text-sm md:text-base text-[var(--text-muted)] font-medium">
+              Your body, your rhythm. Let's track your journey today.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 self-end md:self-center">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-[var(--surface)] text-[var(--text)] rounded-2xl border border-[var(--border)] font-semibold text-sm hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all active:scale-95 shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Settings
+          </button>
+        </div>
+      </header>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6">
         <div className="md:col-span-1 xl:col-span-2">
           <Calendar
             onDateSelect={handleDateSelect}
-            logs={recentLogs}
-            cycles={cycles}
-            userSettings={userSettings}
+            logs={safeLogs}
+            cycles={safeCycles}
+            userSettings={safeSettings}
           />
           <DailyCare />
         </div>
         <div className="space-y-5 md:space-y-6">
           <CycleOverview
-            settings={userSettings}
-            cycles={cycles}
-            recentLogs={recentLogs}
+            settings={safeSettings}
+            cycles={safeCycles}
+            recentLogs={safeLogs}
           />
           <PredictionCard
-            settings={userSettings}
-            cycles={cycles}
+            settings={safeSettings}
+            cycles={safeCycles}
           />
         </div>
       </div>
+
+      <AIAssistant isShreeya={isShreeya} />
 
       {/* Modals */}
       {showLogModal && selectedDate && (
@@ -93,13 +114,10 @@ export function Dashboard() {
       )}
       {showSettings && (
         <SettingsPanel
-          settings={userSettings}
+          settings={safeSettings}
           onClose={() => setShowSettings(false)}
         />
       )}
-
-      {/* AI Assistant - available to all users */}
-      <AIAssistant isShreeya={isShreeya} />
     </div>
   );
 }

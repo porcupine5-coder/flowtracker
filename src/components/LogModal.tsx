@@ -21,9 +21,7 @@ const flowOptions = [
 ];
 
 const symptomOptions = [
-  "Cramps", "Headache", "Bloating", "Breast tenderness",
-  "Acne", "Fatigue", "Nausea", "Back pain", "Mood swings",
-  "Loss of appetite", "Insomnia", "Anxiety",
+  "Bloating", "Headache", "Fever", "Cold", "Cramps", "Mood swings", "Fatigue", "Breast tenderness"
 ];
 
 const moodOptions = [
@@ -46,25 +44,26 @@ const cervicalMucusOptions = [
 export function LogModal({ date, onClose }: LogModalProps) {
   const dailyLog = useQuery(api.cycles.getDailyLog, { date });
   const currentPhase = useQuery(api.cycles.getCurrentPhase, { date });
-   const userSettings = useQuery(api.cycles.getUserSettings);
+  const userSettings = useQuery(api.cycles.getUserSettings);
   const cycles = useQuery(api.cycles.getCycles);
   const updateDailyLog = useMutation(api.cycles.updateDailyLog);
   const startNewCycle = useMutation(api.cycles.startNewCycle);
   const endPeriodEarly = useMutation(api.cycles.manualEndCurrentCycle);
 
   const [flow, setFlow] = useState<"none" | "light" | "medium" | "heavy" | "">("");
-  const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [symptomDetails, setSymptomDetails] = useState<{name: string, severity: number}[]>([]);
   const [mood, setMood] = useState<string>("");
   const [notes, setNotes] = useState("");
+  const [otherSymptoms, setOtherSymptoms] = useState("");
   const [temperature, setTemperature] = useState<number | "">("");
   const [cervicalMucus, setCervicalMucus] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
   const liveRecommendations = useMemo(() => {
     const list: Recommendation[] = [];
-    symptoms.forEach(s => {
-      if (symptomRecommendations[s]) {
-        list.push(...symptomRecommendations[s]);
+    symptomDetails.forEach(s => {
+      if (symptomRecommendations[s.name]) {
+        list.push(...symptomRecommendations[s.name]);
       }
     });
     if (mood && moodRecommendations[mood]) {
@@ -73,7 +72,16 @@ export function LogModal({ date, onClose }: LogModalProps) {
     // Deduplicate by ID
     const unique = Array.from(new Map(list.map(item => [item.id, item])).values());
     return unique.slice(0, 2);
-  }, [symptoms, mood]);
+  }, [symptomDetails, mood]);
+
+  // Emergency detection logic
+  const emergencyDetected = useMemo(() => {
+    const severeSymptoms = symptomDetails.filter(s => s.severity >= 4);
+    // Fever + severe headache/cramps could be an emergency
+    const hasFever = severeSymptoms.some(s => s.name === "Fever");
+    const hasSeverePain = severeSymptoms.some(s => s.name === "Cramps" || s.name === "Headache");
+    return (hasFever && hasSeverePain) || severeSymptoms.length >= 3;
+  }, [symptomDetails]);
 
   // Check if this date is part of an active period
   const activeCycle = cycles?.[0];
@@ -97,18 +105,30 @@ export function LogModal({ date, onClose }: LogModalProps) {
   useEffect(() => {
     if (dailyLog) {
       setFlow(dailyLog.flow || "");
-      setSymptoms(dailyLog.symptoms || []);
+      setSymptomDetails(dailyLog.symptomDetails || []);
       setMood(dailyLog.mood || "");
       setNotes(dailyLog.notes || "");
+      setOtherSymptoms(dailyLog.otherSymptoms || "");
       setTemperature(dailyLog.temperature || "");
       setCervicalMucus(dailyLog.cervicalMucus || "");
     }
   }, [dailyLog]);
 
-  const handleSymptomToggle = (symptom: string) => {
-    setSymptoms((prev) =>
-      prev.includes(symptom) ? prev.filter((s) => s !== symptom) : [...prev, symptom]
-    );
+  const handleSymptomToggle = (symptomName: string) => {
+    setSymptomDetails((prev) => {
+      const existing = prev.find(s => s.name === symptomName);
+      if (existing) {
+        return prev.filter(s => s.name !== symptomName);
+      } else {
+        return [...prev, { name: symptomName, severity: 3 }]; // Default to moderate
+      }
+    });
+  };
+
+  const handleSeverityChange = (symptomName: string, severity: number) => {
+    setSymptomDetails(prev => prev.map(s => 
+      s.name === symptomName ? { ...s, severity } : s
+    ));
   };
 
   const handleSave = async () => {
@@ -117,18 +137,25 @@ export function LogModal({ date, onClose }: LogModalProps) {
       await updateDailyLog({
         date,
         flow: flow === "" ? undefined : flow,
-        symptoms: symptoms.length > 0 ? symptoms : undefined,
-        mood: mood === "" ? undefined : mood as "happy" | "sad" | "anxious" | "irritated" | "energetic" | "tired",
+        symptoms: symptomDetails.map(s => s.name), // Keep legacy field updated
+        symptomDetails: symptomDetails.length > 0 ? symptomDetails : undefined,
+        otherSymptoms: otherSymptoms || undefined,
+        emergencyFlag: emergencyDetected,
+        mood: mood === "" ? undefined : mood,
         notes: notes || undefined,
         temperature: temperature === "" ? undefined : temperature,
-        cervicalMucus: cervicalMucus === "" ? undefined : cervicalMucus as "dry" | "sticky" | "creamy" | "watery" | "egg-white",
+        cervicalMucus: cervicalMucus === "" ? undefined : cervicalMucus,
       });
 
       if (flow && flow !== "none" && (!dailyLog?.flow || dailyLog.flow === "none")) {
         await startNewCycle({ startDate: date });
       }
 
-      toast.success("Log saved successfully");
+      if (emergencyDetected) {
+        toast.warning("Emergency Alert: Based on your severe symptoms, please consider contacting a healthcare provider.", { duration: 10000 });
+      } else {
+        toast.success("Log saved successfully");
+      }
       onClose();
     } catch {
       toast.error("Failed to save log. Please try again.");
@@ -224,22 +251,66 @@ export function LogModal({ date, onClose }: LogModalProps) {
           </Section>
 
           {/* Symptoms */}
-          <Section title="Symptoms">
-            <div className="flex flex-wrap gap-2">
-              {symptomOptions.map((symptom) => (
-                <button
-                  key={symptom}
-                  onClick={() => handleSymptomToggle(symptom)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
-                    symptoms.includes(symptom)
-                      ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-sm"
-                      : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/10"
-                  }`}
-                >
-                  {symptom}
-                </button>
-              ))}
+          <Section title="Symptoms & Severity">
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {symptomOptions.map((symptom) => {
+                  const isActive = symptomDetails.some(s => s.name === symptom);
+                  return (
+                    <button
+                      key={symptom}
+                      onClick={() => handleSymptomToggle(symptom)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                        isActive
+                          ? "bg-[var(--primary)] border-[var(--primary)] text-white shadow-sm"
+                          : "bg-[var(--bg)] border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--primary)] hover:bg-[var(--primary)]/10"
+                      }`}
+                    >
+                      {symptom}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Severity Scales for active symptoms */}
+              <div className="space-y-3 mt-4">
+                {symptomDetails.map((symptom) => (
+                  <div key={symptom.name} className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3 animate-in fade-in slide-in-from-left-2 duration-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold text-[var(--text)]">{symptom.name}</span>
+                      <span className="text-[10px] font-bold uppercase text-[var(--primary)]">
+                        {symptom.severity <= 2 ? "Mild" : symptom.severity === 3 ? "Moderate" : "Severe"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <button
+                          key={level}
+                          onClick={() => handleSeverityChange(symptom.name, level)}
+                          className={`flex-1 h-2 rounded-full transition-all ${
+                            level <= symptom.severity
+                              ? level >= 4 ? "bg-red-500" : level === 3 ? "bg-amber-500" : "bg-green-500"
+                              : "bg-[var(--border)]"
+                          }`}
+                          title={`Level ${level}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          </Section>
+
+          {/* Additional Symptoms */}
+          <Section title="Other Symptoms">
+            <input
+              type="text"
+              value={otherSymptoms}
+              onChange={(e) => setOtherSymptoms(e.target.value)}
+              placeholder="e.g., lower back pain, dizziness..."
+              className="w-full px-3 py-2.5 border border-[var(--border)] rounded-xl text-sm bg-[var(--bg)] text-[var(--text)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-20 focus:border-[var(--primary)] outline-none transition-all"
+            />
           </Section>
 
           {/* Cervical Mucus */}

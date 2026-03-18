@@ -18,7 +18,11 @@ const applicationTables = {
     userId: v.id("users"),
     date: v.string(), // ISO date string
     flow: v.optional(v.union(v.literal("none"), v.literal("light"), v.literal("medium"), v.literal("heavy"))),
-    symptoms: v.optional(v.array(v.string())),
+    symptoms: v.optional(v.array(v.string())), // Legacy symptom names
+    symptomDetails: v.optional(v.array(v.object({
+      name: v.string(),
+      severity: v.number(), // 1-5
+    }))),
     mood: v.optional(v.union(
       v.literal("happy"),
       v.literal("sad"),
@@ -28,6 +32,8 @@ const applicationTables = {
       v.literal("tired")
     )),
     notes: v.optional(v.string()),
+    otherSymptoms: v.optional(v.string()), // Free-text for additional symptoms
+    emergencyFlag: v.optional(v.boolean()), // True if severe symptoms are detected
     phase: v.optional(v.union(
       v.literal("menstrual"),
       v.literal("follicular"),

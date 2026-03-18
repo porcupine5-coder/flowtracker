@@ -203,6 +203,12 @@ export const updateDailyLog = mutation({
     date: v.string(),
     flow: v.optional(v.union(v.literal("none"), v.literal("light"), v.literal("medium"), v.literal("heavy"))),
     symptoms: v.optional(v.array(v.string())),
+    symptomDetails: v.optional(v.array(v.object({
+      name: v.string(),
+      severity: v.number(),
+    }))),
+    otherSymptoms: v.optional(v.string()),
+    emergencyFlag: v.optional(v.boolean()),
     mood: v.optional(v.union(
       v.literal("happy"),
       v.literal("sad"),
@@ -256,6 +262,9 @@ export const updateDailyLog = mutation({
       date: args.date,
       flow: args.flow,
       symptoms: args.symptoms,
+      symptomDetails: args.symptomDetails,
+      otherSymptoms: args.otherSymptoms,
+      emergencyFlag: args.emergencyFlag,
       mood: args.mood,
       notes: args.notes,
       temperature: args.temperature,

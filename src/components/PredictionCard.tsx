@@ -3,7 +3,7 @@ interface PredictionCardProps {
   cycles: any[];
 }
 
-export function PredictionCard({ settings, cycles }: PredictionCardProps) {
+export function PredictionCard({ settings }: PredictionCardProps) {
   const getPredictions = () => {
     if (!settings.lastPeriodStart) return null;
     const lastPeriodDate = new Date(settings.lastPeriodStart);

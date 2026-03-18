@@ -30,18 +30,22 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
   const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-  // Helper functions for cycle data
-  const getFertileWindow = (dateString: string) => {
-    if (!cycles || cycles.length === 0) return false;
-    for (const cycle of cycles) {
-      if (cycle.ovulationDate) {
-        const ovulationDate = new Date(cycle.ovulationDate);
-        const checkDate = new Date(dateString);
-        const daysDiff = Math.floor((checkDate.getTime() - ovulationDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (daysDiff >= -5 && daysDiff <= 5) return true;
-      }
-    }
-    return false;
+  const getPhaseForDate = (dateString: string) => {
+    if (!userSettings?.lastPeriodStart) return null;
+    
+    const lastStart = new Date(userSettings.lastPeriodStart);
+    const checkDate = new Date(dateString);
+    const diff = Math.floor((checkDate.getTime() - lastStart.getTime()) / (1000 * 60 * 60 * 24));
+    const cycle = userSettings.averageCycleLength || 28;
+    const period = userSettings.averagePeriodLength || 5;
+    
+    if (diff < 0) return null;
+    
+    const dayInCycle = diff % cycle;
+    if (dayInCycle < period) return "menstrual";
+    if (dayInCycle < Math.floor(cycle / 2) - 2) return "follicular";
+    if (dayInCycle < Math.floor(cycle / 2) + 2) return "ovulation";
+    return "luteal";
   };
 
   const getPeriodDays = (dateString: string) => {
@@ -85,29 +89,35 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       days.push(<div key={`empty-${i}`} />);
     }
 
+    const phaseColors: Record<string, string> = {
+      menstrual: "bg-red-500/20 dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-700 dark:text-red-400",
+      follicular: "bg-emerald-500/20 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400",
+      ovulation: "bg-amber-500/20 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400",
+      luteal: "bg-purple-500/20 dark:bg-purple-900/30 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400",
+    };
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dateString = new Date(year, month, day).toISOString().split("T")[0];
       const log = getLogForDate(dateString);
       const isToday = dateString === todayString;
       const isFuture = new Date(dateString) > today;
       const isSelected = selectedDate === dateString;
-      const isFertile = getFertileWindow(dateString);
+      const phase = getPhaseForDate(dateString);
       const periodDay = getPeriodDays(dateString);
       const isPeriod = periodDay > 0;
 
       let bgClass = "";
       let textClass = "text-[var(--text)]";
-      let borderClass = "rounded-2xl";
+      let borderClass = "rounded-2xl border border-transparent";
       let animClass = "";
+      const tooltipText = phase ? `${phase} phase` : "";
 
       if (isPeriod) {
         if (log?.flow && log.flow !== "none") {
-          // Logged period day
           bgClass = "bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500 shadow-md";
           textClass = "text-white font-bold";
         } else {
-          // Predicted period day (not yet logged or no flow)
-          bgClass = "bg-red-500/20 dark:bg-red-900/30 border border-red-300 dark:border-red-800";
+          bgClass = "bg-red-500/20 dark:bg-red-900/30 border-red-300 dark:border-red-800";
           textClass = "text-red-600 dark:text-red-400 font-medium";
         }
         const blobShapes = ["rounded-[35%_65%_30%_70%]", "rounded-[60%_40%_70%_30%]", "rounded-[40%_60%_60%_40%]"];
@@ -115,19 +125,22 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       } else if (isSelected) {
         bgClass = "bg-[var(--primary)] shadow-lg";
         textClass = "text-white font-semibold";
-      } else if (isFertile) {
-        bgClass = "bg-[var(--accent)] opacity-80";
-        textClass = "text-[var(--text)] font-medium";
-        animClass = "animate-ring-pulse ring-2 ring-[var(--primary)]";
-      } else if (isToday) {
-        bgClass = "bg-[var(--surface)]";
-        textClass = "text-[var(--primary)] font-bold";
-        animClass = "animate-breathe ring-2 ring-[var(--primary)]";
-      } else if (log?.symptoms?.length || log?.mood) {
-        bgClass = "bg-[var(--secondary)] opacity-30";
+      } else if (phase && phaseColors[phase]) {
+        bgClass = phaseColors[phase].split(" ").filter(c => c.startsWith("bg-") || c.startsWith("dark:bg-")).join(" ");
+        borderClass = "rounded-2xl border " + phaseColors[phase].split(" ").filter(c => c.startsWith("border-") || c.startsWith("dark:border-")).join(" ");
+        textClass = phaseColors[phase].split(" ").filter(c => c.startsWith("text-") || c.startsWith("dark:text-")).join(" ");
+        if (phase === "ovulation") animClass = "animate-ring-pulse ring-2 ring-amber-400";
       }
 
-      if (isFuture && !isToday && !isSelected) textClass = "text-[var(--text-muted)]";
+      if (isToday) {
+        borderClass += " ring-2 ring-[var(--primary)] ring-offset-2 dark:ring-offset-[var(--bg)]";
+        animClass += " animate-breathe";
+      }
+
+      if (isFuture && !isToday && !isSelected && !isPeriod && phase !== "ovulation") {
+        textClass = "text-[var(--text-muted)]";
+        bgClass = "bg-transparent";
+      }
 
       days.push(
         <button
@@ -136,10 +149,17 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
             setSelectedDate(dateString);
             onDateSelect(dateString);
           }}
-          className={`relative aspect-square flex flex-col items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-110 hover:shadow-md active:scale-95 ${bgClass} ${textClass} ${borderClass} ${animClass}`}
+          title={tooltipText}
+          className={`relative aspect-square flex flex-col items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-110 hover:shadow-md active:scale-95 group ${bgClass} ${textClass} ${borderClass} ${animClass}`}
         >
           <span className="relative z-10">{day}</span>
-          <div className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 hover:ring-2 hover:ring-offset-1 hover:ring-blue-400/50 dark:hover:ring-purple-400/50" />
+          
+          {/* Tooltip implementation for mobile/desktop */}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black/80 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+            {tooltipText || `Day ${day}`}
+          </div>
+
+          <div className="absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity duration-300 hover:ring-2 hover:ring-offset-1 hover:ring-[var(--primary)]/50" />
         </button>
       );
     }
@@ -178,7 +198,8 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       for (let day = 1; day <= daysInMonth; day++) {
         const dateString = new Date(year, m, day).toISOString().split("T")[0];
         const isPeriod = getPeriodDays(dateString) > 0;
-        const isFertile = getFertileWindow(dateString);
+        const phase = getPhaseForDate(dateString);
+        const isOvulation = phase === "ovulation";
         const isToday = dateString === todayString;
 
         let bgClass = "transparent";
@@ -194,13 +215,20 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
             bgClass = "bg-red-200 dark:bg-red-900/40 border border-red-400/30";
             textClass = "text-red-700 dark:text-red-300";
           }
-        } else if (isFertile) {
-          bgClass = "bg-emerald-500 shadow-sm";
-          textClass = "text-white";
+        } else if (isOvulation) {
+          bgClass = "bg-amber-500/20 border border-amber-300 shadow-sm";
+          textClass = "text-amber-700 dark:text-amber-400";
+          ringClass = "ring-1 ring-amber-400";
         } else if (isToday) {
-          bgClass = "bg-amber-500";
+          bgClass = "bg-[var(--primary)]";
           textClass = "text-white";
-          ringClass = "ring-1 ring-amber-300 ring-offset-1 dark:ring-offset-0";
+          ringClass = "ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0";
+        } else if (phase === "follicular") {
+          bgClass = "bg-emerald-500/10";
+          textClass = "text-emerald-700 dark:text-emerald-400";
+        } else if (phase === "luteal") {
+          bgClass = "bg-purple-500/10";
+          textClass = "text-purple-700 dark:text-purple-400";
         }
 
         days.push(
@@ -288,6 +316,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
                 setCurrentDate(new Date(currentDate.getFullYear() - 1, 0, 1));
               }
             }}
+            aria-label="Previous Month/Year"
             className="p-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-200 text-[var(--text-muted)] hover:text-[var(--primary)] hover:scale-110 active:scale-95 shadow-sm"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -300,6 +329,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
               setCurrentDate(new Date());
               if (viewMode === "month") setSelectedDate(todayString);
             }}
+            aria-label="Go to Today"
             className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:shadow-lg rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-md"
           >
             Today
@@ -313,6 +343,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
                 setCurrentDate(new Date(currentDate.getFullYear() + 1, 0, 1));
               }
             }}
+            aria-label="Next Month/Year"
             className="p-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-200 text-[var(--text-muted)] hover:text-[var(--primary)] hover:scale-110 active:scale-95 shadow-sm"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -328,26 +359,29 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-6 mt-8 pt-6 border-t border-[var(--border)]">
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500 shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Logged Period</span>
-        </div>
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="w-5 h-5 rounded-lg bg-red-500/20 border border-red-300 shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Predicted Period</span>
-        </div>
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="w-5 h-5 rounded-lg bg-[var(--accent)] opacity-80 ring-2 ring-[var(--primary)] animate-ring-pulse shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Fertile Window</span>
-        </div>
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="w-5 h-5 rounded-lg bg-[var(--surface)] ring-2 ring-[var(--primary)] animate-breathe shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Today</span>
-        </div>
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="w-5 h-5 rounded-lg bg-[var(--secondary)] opacity-30 shadow-sm transition-transform group-hover:scale-110" />
-          <span className="text-xs font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Logged</span>
+      <div className="mt-8 pt-6 border-t border-[var(--border)]">
+        <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-4 px-1">Phase Legend</h4>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-4 rounded-lg bg-red-500 shadow-sm transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Menstrual</span>
+          </div>
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-4 rounded-lg bg-emerald-500/20 border border-emerald-300 shadow-sm transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Follicular</span>
+          </div>
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-4 rounded-lg bg-amber-500/20 border border-amber-300 ring-2 ring-amber-400 shadow-sm transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Ovulation</span>
+          </div>
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-4 rounded-lg bg-purple-500/20 border border-purple-300 shadow-sm transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Luteal</span>
+          </div>
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-4 rounded-lg bg-[var(--surface)] ring-2 ring-[var(--primary)] ring-offset-1 shadow-sm transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Today</span>
+          </div>
         </div>
       </div>
     </div>

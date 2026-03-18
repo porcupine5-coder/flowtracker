@@ -1,9 +1,11 @@
 export interface Recommendation {
   id: string;
-  category: "diet" | "exercise" | "self-care" | "wellness";
+  category: "nutrition" | "exercise" | "self-care" | "medical";
   title: string;
   description: string;
   icon: string;
+  priority?: "low" | "medium" | "high" | "emergency";
+  minSeverity?: number;
 }
 
 export const symptomRecommendations: Record<string, Recommendation[]> = {
@@ -13,186 +15,173 @@ export const symptomRecommendations: Record<string, Recommendation[]> = {
       category: "self-care",
       title: "Heat Therapy",
       description: "Apply a heating pad or hot water bottle to your lower abdomen to relax uterine muscles.",
-      icon: "🔥"
+      icon: "🔥",
+      priority: "medium",
+      minSeverity: 1
     },
     {
       id: "cramps-2",
-      category: "diet",
-      title: "Magnesium Rich Foods",
+      category: "nutrition",
+      title: "Magnesium Boost",
       description: "Try dark chocolate, spinach, or pumpkin seeds. Magnesium can help reduce muscle contractions.",
-      icon: "🍫"
+      icon: "🍫",
+      priority: "low",
+      minSeverity: 1
+    },
+    {
+      id: "cramps-3",
+      category: "medical",
+      title: "Pain Management",
+      description: "If pain is persistent, consider over-the-counter anti-inflammatories or consult a doctor.",
+      icon: "💊",
+      priority: "high",
+      minSeverity: 4
     }
   ],
   "Headache": [
     {
       id: "headache-1",
-      category: "wellness",
-      title: "Hydration Boost",
+      category: "nutrition",
+      title: "Hydration Focus",
       description: "Drink plenty of water and herbal tea. Dehydration can worsen hormonal headaches.",
-      icon: "💧"
+      icon: "💧",
+      priority: "medium",
+      minSeverity: 1
     },
     {
       id: "headache-2",
       category: "self-care",
-      title: "Dark Room Rest",
+      title: "Sensory Rest",
       description: "Rest in a quiet, dark room for 20 minutes to reduce sensory triggers.",
-      icon: "🌙"
+      icon: "🌙",
+      priority: "medium",
+      minSeverity: 3
+    }
+  ],
+  "Fever": [
+    {
+      id: "fever-1",
+      category: "medical",
+      title: "Monitor Temperature",
+      description: "Track your temperature hourly and stay hydrated. Rest is essential.",
+      icon: "🌡️",
+      priority: "high",
+      minSeverity: 1
+    },
+    {
+      id: "fever-2",
+      category: "medical",
+      title: "Medical Consultation",
+      description: "If fever exceeds 102°F or persists, please contact a healthcare provider immediately.",
+      icon: "🚨",
+      priority: "emergency",
+      minSeverity: 4
     }
   ],
   "Bloating": [
     {
       id: "bloating-1",
-      category: "diet",
-      title: "Reduce Sodium",
-      description: "Limit salty foods which cause water retention. Opt for potassium-rich bananas instead.",
-      icon: "🍌"
+      category: "nutrition",
+      title: "Potassium Intake",
+      description: "Limit salty foods which cause water retention. Opt for bananas instead.",
+      icon: "🍌",
+      priority: "low",
+      minSeverity: 1
     },
     {
       id: "bloating-2",
       category: "exercise",
-      title: "Gentle Movement",
+      title: "Light Walking",
       description: "A 15-minute light walk can help stimulate digestion and reduce gas.",
-      icon: "🚶"
+      icon: "🚶",
+      priority: "low",
+      minSeverity: 1
     }
   ],
   "Fatigue": [
     {
       id: "fatigue-1",
       category: "self-care",
-      title: "Power Nap",
-      description: "A short 20-minute nap can recharge your energy levels without causing grogginess.",
-      icon: "😴"
+      title: "Structured Rest",
+      description: "A short 20-minute nap can recharge your energy levels without grogginess.",
+      icon: "😴",
+      priority: "medium",
+      minSeverity: 1
     },
     {
       id: "fatigue-2",
-      category: "diet",
-      title: "Iron Rich Snacks",
+      category: "nutrition",
+      title: "Iron Rich Foods",
       description: "Boost your energy with iron-rich foods like nuts, dried fruits, or lean protein.",
-      icon: "🥜"
+      icon: "🥜",
+      priority: "medium",
+      minSeverity: 1
     }
   ],
   "Mood swings": [
     {
       id: "mood-1",
-      category: "wellness",
-      title: "Mindfulness",
+      category: "self-care",
+      title: "Mindfulness Practice",
       description: "Try a 5-minute guided meditation or deep breathing exercise to ground yourself.",
-      icon: "🧘"
+      icon: "🧘",
+      priority: "medium",
+      minSeverity: 1
     },
     {
       id: "mood-2",
-      category: "wellness",
-      title: "Journaling",
+      category: "self-care",
+      title: "Emotional Journaling",
       description: "Spend a few minutes writing down your thoughts to process emotions better.",
-      icon: "✍️"
+      icon: "✍️",
+      priority: "low",
+      minSeverity: 1
+    }
+  ],
+  "Cold": [
+    {
+      id: "cold-1",
+      category: "nutrition",
+      title: "Vitamin C Boost",
+      description: "Focus on citrus fruits and warm liquids to support your immune system.",
+      icon: "🍊",
+      priority: "medium",
+      minSeverity: 1
     }
   ],
   "Breast tenderness": [
     {
       id: "breast-1",
       category: "self-care",
-      title: "Supportive Wear",
+      title: "Comfortable Support",
       description: "Opt for a wireless, supportive bra to minimize discomfort and friction.",
-      icon: "👙"
-    },
-    {
-      id: "breast-2",
-      category: "diet",
-      title: "Reduce Caffeine",
-      description: "Limiting caffeine may help reduce breast sensitivity during this phase.",
-      icon: "☕"
-    }
-  ],
-  "Acne": [
-    {
-      id: "acne-1",
-      category: "wellness",
-      title: "Clean Pillowcases",
-      description: "Switch to a clean silk or cotton pillowcase to prevent skin irritation.",
-      icon: "🛏️"
-    },
-    {
-      id: "acne-2",
-      category: "diet",
-      title: "Low Glycemic Foods",
-      description: "Avoid high-sugar snacks which can trigger hormonal breakouts.",
-      icon: "🥦"
-    }
-  ],
-  "Nausea": [
-    {
-      id: "nausea-1",
-      category: "diet",
-      title: "Ginger Tea",
-      description: "Sip on warm ginger or peppermint tea to soothe your stomach.",
-      icon: "🍵"
-    },
-    {
-      id: "nausea-2",
-      category: "diet",
-      title: "Small Meals",
-      description: "Eat smaller, more frequent portions to avoid putting pressure on your digestion.",
-      icon: "🥗"
-    }
-  ],
-  "Back pain": [
-    {
-      id: "back-1",
-      category: "exercise",
-      title: "Gentle Stretching",
-      description: "Try child's pose or cat-cow stretches to relieve tension in your lower back.",
-      icon: "🧘‍♀️"
-    },
-    {
-      id: "back-2",
-      category: "self-care",
-      title: "Warm Bath",
-      description: "An Epsom salt bath can help relax your muscles and ease lower back discomfort.",
-      icon: "🛁"
-    }
-  ],
-  "Loss of appetite": [
-    {
-      id: "appetite-1",
-      category: "diet",
-      title: "Nutrient Smoothies",
-      description: "If solid food feels heavy, try a nutrient-dense smoothie to keep your energy up.",
-      icon: "🥤"
-    }
-  ],
-  "Insomnia": [
-    {
-      id: "insomnia-1",
-      category: "wellness",
-      title: "Digital Detox",
-      description: "Avoid screens 60 minutes before bed to support your natural melatonin production.",
-      icon: "📱"
-    },
-    {
-      id: "insomnia-2",
-      category: "self-care",
-      title: "White Noise",
-      description: "Try a white noise machine or calming rain sounds to drift off easier.",
-      icon: "🌧️"
-    }
-  ],
-  "Anxiety": [
-    {
-      id: "anxiety-1",
-      category: "wellness",
-      title: "Box Breathing",
-      description: "Inhale for 4, hold for 4, exhale for 4, hold for 4 to calm your nervous system.",
-      icon: "🫁"
-    },
-    {
-      id: "anxiety-2",
-      category: "wellness",
-      title: "Nature Connection",
-      description: "Even a few minutes near a window or outdoors can help ground your thoughts.",
-      icon: "🌿"
+      icon: "👙",
+      priority: "low",
+      minSeverity: 1
     }
   ]
 };
+
+export const emergencyWarnings = [
+  {
+    condition: (symptoms: {name: string, severity: number}[]) => {
+      const fever = symptoms.find(s => s.name === "Fever" && s.severity >= 4);
+      const headache = symptoms.find(s => s.name === "Headache" && s.severity >= 4);
+      return !!(fever && headache);
+    },
+    message: "High fever combined with severe headache requires immediate medical attention.",
+    icon: "🚨"
+  },
+  {
+    condition: (symptoms: {name: string, severity: number}[]) => {
+      const cramps = symptoms.find(s => s.name === "Cramps" && s.severity >= 5);
+      const fever = symptoms.find(s => s.name === "Fever" && s.severity >= 3);
+      return !!(cramps && fever);
+    },
+    message: "Severe pelvic pain with fever could indicate an infection. Please consult a doctor.",
+    icon: "🚨"
+  }
+];
 
 export const phaseMotivations: Record<string, string[]> = {
   "menstrual": [
