@@ -213,6 +213,7 @@ export function DailyCare() {
                       <div className="flex items-center justify-between pt-4 border-t border-[var(--border)] mt-5">
                         <button 
                           onClick={() => { void handleAction(rec.id, "dismiss"); }}
+                          aria-label={`Dismiss recommendation: ${rec.title}`}
                           className="text-[10px] font-medium text-[var(--text-muted)] hover:text-red-500 transition-colors flex items-center gap-1.5"
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -223,6 +224,7 @@ export function DailyCare() {
                         <button 
                           onClick={() => { void handleAction(rec.id, "like"); }}
                           disabled={likedIds.includes(rec.id)}
+                          aria-label={likedIds.includes(rec.id) ? "Saved to favorites" : `Mark ${rec.title} as helpful`}
                           className={`text-[10px] font-bold px-4 py-1.5 rounded-full border transition-all flex items-center gap-1.5 ${
                             likedIds.includes(rec.id)
                               ? "bg-green-500/10 border-green-500/20 text-green-600"

@@ -287,6 +287,8 @@ export function LogModal({ date, onClose }: LogModalProps) {
                         <button
                           key={level}
                           onClick={() => handleSeverityChange(symptom.name, level)}
+                          aria-label={`Set ${symptom.name} severity to ${level}`}
+                          aria-pressed={level <= symptom.severity}
                           className={`flex-1 h-2 rounded-full transition-all ${
                             level <= symptom.severity
                               ? level >= 4 ? "bg-red-500" : level === 3 ? "bg-amber-500" : "bg-green-500"
