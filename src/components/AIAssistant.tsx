@@ -355,7 +355,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       {isOpen && (
         <div
           ref={windowRef}
-          className={`ai-assistant-window fixed bg-[#faf8f5] border border-[var(--border)] flex flex-col overflow-hidden z-50 ${
+          className={`ai-assistant-window fixed bg-[var(--surface)] border border-[var(--border-strong)] flex flex-col overflow-hidden z-50 ${
             isDragging ? "dragging" : ""
           } ${isMobile ? "ai-assistant-sheet" : ""}`}
           style={{
@@ -367,6 +367,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
             height: isMinimized ? "56px" : isMobile ? "85vh" : isTablet ? "70vh" : "580px",
             transform: isMobile ? `translateY(${sheetDragY}px)` : "none",
             transition: isMobile && isSheetDragging ? "none" : "transform 0.25s ease",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.25)",
           }}
         >
           {/* Drag Handle */}
@@ -380,7 +381,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-4 pb-3.5 border-b border-[var(--border)] flex-shrink-0">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden border border-[var(--border)]">
+              <div className="w-8 h-8 bg-[var(--bg)] rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden border border-[var(--border)]">
                 <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
               </div>
               {!isMinimized && (
@@ -395,7 +396,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
             <div className="flex items-center gap-1 flex-shrink-0 ml-2">
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
-                className="w-9 h-9 rounded-full hover:bg-[rgba(0,0,0,0.06)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
+                className="w-9 h-9 rounded-full hover:bg-[var(--border)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
                 title={isMinimized ? "Expand" : "Minimize"}
               >
                 {isMinimized ? (
@@ -412,7 +413,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                 <>
                   <button
                     onClick={() => { setDraftConfig(botConfig); setShowConfig(true); }}
-                    className="w-9 h-9 rounded-full hover:bg-[rgba(0,0,0,0.06)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
+                    className="w-9 h-9 rounded-full hover:bg-[var(--border)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
                     title="Customize assistant"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -423,7 +424,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                   {messages.length > 0 && (
                     <button
                       onClick={() => setMessages([])}
-                      className="w-9 h-9 rounded-full hover:bg-[rgba(0,0,0,0.06)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
+                      className="w-9 h-9 rounded-full hover:bg-[var(--border)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
                       title="Clear chat"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -435,7 +436,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-9 h-9 rounded-full hover:bg-[rgba(0,0,0,0.06)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
+                className="w-9 h-9 rounded-full hover:bg-[var(--border)] transition-colors text-[var(--text-muted)] flex items-center justify-center"
                 title="Close"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -449,7 +450,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           {!isMinimized && (
             <>
               {/* Messages */}
-              <div className="ai-messages-container flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              <div className="ai-messages-container flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[var(--surface)]">
                 {!messages.length && (
                   <div className="ai-empty-state flex flex-col items-center justify-center h-full text-center py-8 relative overflow-hidden">
                     <div className="ai-empty-dots" aria-hidden="true">
@@ -460,7 +461,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                       <span />
                       <span />
                     </div>
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden border-2 border-[var(--primary)]/10">
+                    <div className="w-16 h-16 bg-[var(--bg)] rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden border-2 border-[var(--primary)]/10">
                       <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
                     </div>
                     <p className="text-base font-semibold text-[var(--text)] mb-1">{botConfig.name}</p>
@@ -484,8 +485,8 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                     <div
                       className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-[var(--secondary)] text-white rounded-br-sm"
-                          : "bg-[var(--border)] text-[var(--text)] rounded-bl-sm"
+                          ? "bg-[var(--primary)] text-white rounded-br-sm shadow-md"
+                          : "bg-[var(--bg)] text-[var(--text)] rounded-bl-sm border border-[var(--border)] shadow-sm"
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -495,7 +496,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
 
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-[var(--border)] px-4 py-3 rounded-2xl rounded-bl-sm">
+                    <div className="bg-[var(--bg)] px-4 py-3 rounded-2xl rounded-bl-sm border border-[var(--border)]">
                       <div className="flex gap-1">
                         <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                         <span className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -508,7 +509,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
               </div>
 
               {/* Input Area */}
-              <div className="px-4 py-3 border-t border-[var(--border)] flex-shrink-0 bg-[#faf8f5] sticky bottom-0">
+              <div className="px-4 py-3 border-t border-[var(--border)] flex-shrink-0 bg-[var(--surface)] sticky bottom-0">
                 <div className="flex gap-2 relative">
                   <textarea
                     value={input}
