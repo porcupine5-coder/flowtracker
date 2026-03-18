@@ -150,6 +150,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
             onDateSelect(dateString);
           }}
           title={tooltipText}
+          aria-label={`${monthNames[month]} ${day}, ${year}${phase ? `, ${phase} phase` : ""}${isPeriod ? ", period day" : ""}`}
           className={`relative aspect-square flex flex-col items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-110 hover:shadow-md active:scale-95 group ${bgClass} ${textClass} ${borderClass} ${animClass}`}
         >
           <span className="relative z-10">{day}</span>
