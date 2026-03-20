@@ -91,7 +91,7 @@ body {
 
 /* Canvas element for alternative animations */
 .bg-animation-canvas {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -103,7 +103,7 @@ body {
 
 /* Cross-fade wrapper for smooth transitions between star-field and alt */
 .bg-crossfade {
-  position: absolute;
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;

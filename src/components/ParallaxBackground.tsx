@@ -36,7 +36,7 @@ export function ParallaxBackground({
   disableAnimation = false
 }: ParallaxBackgroundProps) {
   // Pull animation context (safe fallback if provider missing)
-  let animationMode: "stars" | "alt" = "stars";
+  let animationMode: "stars" | "alt" | "none" = "stars";
   let reducedMotion = false;
   let themeName = "";
   let isDark = isDarkMode;

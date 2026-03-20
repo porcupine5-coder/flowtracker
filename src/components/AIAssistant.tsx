@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
+import BlueskyIcon from "./BlueskyIcon";
+
 
 interface AIAssistantProps {
   isShreeya: boolean;
@@ -341,9 +343,12 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           }
         >
           <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 rounded-full transition-colors" />
-          <svg className="w-6 h-6 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-          </svg>
+          <BlueskyIcon 
+            size={24} 
+            color="white" 
+            className="relative z-10 transition-transform group-hover:scale-110" 
+            strokeWidth={1.5}
+          />
         </button>
       )}
 
@@ -381,8 +386,8 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-4 pb-3.5 border-b border-[var(--border)] flex-shrink-0">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-8 h-8 bg-[var(--bg)] rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden border border-[var(--border)]">
-                <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 bg-[var(--bg)] rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden border border-[var(--border)] text-[var(--primary)]">
+                <BlueskyIcon size={20} />
               </div>
               {!isMinimized && (
                 <div className="min-w-0 flex-1">
@@ -461,8 +466,8 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
                       <span />
                       <span />
                     </div>
-                    <div className="w-16 h-16 bg-[var(--bg)] rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden border-2 border-[var(--primary)]/10">
-                      <img src="/logo.jpg" alt="FlowTracker Logo" className="w-full h-full object-cover" />
+                    <div className="w-16 h-16 bg-[var(--bg)] rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden border-2 border-[var(--primary)]/10 text-[var(--primary)]">
+                      <BlueskyIcon size={40} />
                     </div>
                     <p className="text-base font-semibold text-[var(--text)] mb-1">{botConfig.name}</p>
                     <p className="text-sm text-[var(--text-muted)] max-w-xs">{botConfig.description}</p>

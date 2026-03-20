@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
-export type AnimationMode = "stars" | "alt";
+export type AnimationMode = "stars" | "alt" | "none";
 
 interface BackgroundAnimationContextType {
   animationMode: AnimationMode;
@@ -17,7 +17,7 @@ export function BackgroundAnimationProvider({ children }: { children: React.Reac
   const [animationMode, setAnimationMode] = useState<AnimationMode>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored === "alt" ? "alt" : "stars";
+      return stored === "alt" ? "alt" : stored === "none" ? "none" : "stars";
     } catch {
       return "stars";
     }
@@ -32,8 +32,6 @@ export function BackgroundAnimationProvider({ children }: { children: React.Reac
   });
 
   // Apply a class gate for reduced-motion behavior.
-  // We do not force-disable animations from browser-level preferences, because
-  // some browsers may report "reduce" unexpectedly and freeze background motion.
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("reduce-motion", reducedMotion);
@@ -41,7 +39,7 @@ export function BackgroundAnimationProvider({ children }: { children: React.Reac
 
   const toggleAnimation = useCallback(() => {
     setAnimationMode((prev) => {
-      const next = prev === "stars" ? "alt" : "stars";
+      const next = prev === "stars" ? "alt" : prev === "alt" ? "none" : "stars";
       try {
         localStorage.setItem(STORAGE_KEY, next);
       } catch { /* ignore */ }

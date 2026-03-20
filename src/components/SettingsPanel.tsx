@@ -44,7 +44,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
         enablePartnerSharing: enableSharing,
         themeName: selectedTheme || undefined,
       });
-      toast.success("Settings saved");
+      toast.success("Settings saved", { duration: 2000 });
       onClose();
     } catch {
       toast.error("Failed to save settings");
