@@ -8,6 +8,8 @@ import { ParallaxBackground } from "./components/ParallaxBackground";
 import { useState, useEffect, useMemo } from "react";
 import { ThemeProvider } from "./components/ThemeManager";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { BackgroundAnimationProvider } from "./components/BackgroundAnimationContext";
+import { AnimationToggleButton } from "./components/AnimationToggleButton";
 
 function LoadingScreen({ darkMode, message = "Loading your dashboard..." }: { darkMode: boolean; message?: string }) {
   return (
@@ -33,7 +35,7 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
   }
 
   return (
-    <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="low">
+    <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="medium">
       <div className="min-h-screen flex flex-col">
         <header className="sticky top-0 z-30 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)] px-4 py-3 md:px-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -50,6 +52,7 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
             </div>
             
             <div className="flex items-center gap-2">
+              <AnimationToggleButton />
               <button
                 onClick={toggleDarkMode}
                 className="p-2.5 rounded-xl hover:bg-[var(--bg)] text-[var(--text-muted)] hover:text-[var(--primary)] transition-all duration-300 active:scale-90"
@@ -77,8 +80,8 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
 
 function UnauthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; toggleDarkMode: () => void }) {
   return (
-    <ParallaxBackground isDarkMode={darkMode} speed={0.8}>
-      <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+    <ParallaxBackground isDarkMode={darkMode} speed={0.8} centerContent={false} allowScroll>
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6 py-12">
         <div className="w-full max-w-md md:max-w-lg">
           <div className="flex flex-col items-center mb-8 md:mb-10">
             <div className="w-24 h-24 rounded-[2rem] overflow-hidden shadow-2xl shadow-indigo-500/30 border-4 border-white mb-6 transform hover:rotate-6 transition-transform duration-500">
@@ -92,7 +95,8 @@ function UnauthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; t
             <SignInForm />
           </div>
           
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center flex items-center justify-center gap-3">
+            <AnimationToggleButton />
             <button
               onClick={toggleDarkMode}
               className="px-4 py-2 rounded-full bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/20 text-sm font-medium text-[var(--text-muted)] hover:text-[var(--primary)] transition-all"
@@ -136,28 +140,29 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider darkMode={darkMode}>
-        <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 relative">
-          {isAuthenticated ? (
-            <AuthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          ) : (
-            <UnauthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          )}
+        <BackgroundAnimationProvider>
+          <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] transition-colors duration-200 relative">
+            {isAuthenticated ? (
+              <AuthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            ) : (
+              <UnauthenticatedApp darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            )}
 
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                color: "var(--text)",
-                borderRadius: "10px",
-                fontSize: "14px",
-              },
-            }}
-          />
-        </div>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                },
+              }}
+            />
+          </div>
+        </BackgroundAnimationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
 }
-

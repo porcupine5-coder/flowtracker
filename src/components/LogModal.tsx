@@ -48,7 +48,7 @@ export function LogModal({ date, onClose }: LogModalProps) {
   const cycles = useQuery(api.cycles.getCycles);
   const updateDailyLog = useMutation(api.cycles.updateDailyLog);
   const startNewCycle = useMutation(api.cycles.startNewCycle);
-  const endPeriodEarly = useMutation(api.cycles.manualEndCurrentCycle);
+  const endPeriodEarly = useMutation(api.cycles.endPeriodEarly);
 
   const [flow, setFlow] = useState<"none" | "light" | "medium" | "heavy" | "">("");
   const [symptomDetails, setSymptomDetails] = useState<{name: string, severity: number}[]>([]);
@@ -83,18 +83,22 @@ export function LogModal({ date, onClose }: LogModalProps) {
     return (hasFever && hasSeverePain) || severeSymptoms.length >= 3;
   }, [symptomDetails]);
 
-  // Check if this date is part of an active period
+  // Check if this date is part of an active (not yet ended) period.
+  // Uses per-cycle periodLength when available so that after an early
+  // termination the button disappears on subsequent days.
   const activeCycle = cycles?.[0];
+  const effectivePeriodLength =
+    activeCycle?.periodLength ?? (userSettings?.averagePeriodLength ?? 5);
   const isDateInActivePeriod = activeCycle && !activeCycle.endDate && (() => {
     const start = new Date(activeCycle.startDate);
     const check = new Date(date);
     const diff = Math.floor((check.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return diff >= 0 && diff < (userSettings?.averagePeriodLength || 5);
+    return diff >= 0 && diff < effectivePeriodLength;
   })();
 
   const handleEndPeriodEarly = async () => {
     try {
-      await endPeriodEarly({ endDate: date });
+      await endPeriodEarly({ periodEndDate: date });
       toast.success("Period marked as ended");
       onClose();
     } catch {

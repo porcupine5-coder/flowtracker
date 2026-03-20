@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getPeriodDay, getPhaseForDate as calcPhaseForDate } from "../lib/calendarUtils";
 
 interface CalendarProps {
   onDateSelect: (date: string) => void;
@@ -30,48 +31,11 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
   const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
-  const getPhaseForDate = (dateString: string) => {
-    if (!userSettings?.lastPeriodStart) return null;
-    
-    const lastStart = new Date(userSettings.lastPeriodStart);
-    const checkDate = new Date(dateString);
-    const diff = Math.floor((checkDate.getTime() - lastStart.getTime()) / (1000 * 60 * 60 * 24));
-    const cycle = userSettings.averageCycleLength || 28;
-    const period = userSettings.averagePeriodLength || 5;
-    
-    if (diff < 0) return null;
-    
-    const dayInCycle = diff % cycle;
-    if (dayInCycle < period) return "menstrual";
-    if (dayInCycle < Math.floor(cycle / 2) - 2) return "follicular";
-    if (dayInCycle < Math.floor(cycle / 2) + 2) return "ovulation";
-    return "luteal";
-  };
+  const getPhaseForDate = (dateString: string) =>
+    calcPhaseForDate(dateString, userSettings);
 
-  const getPeriodDays = (dateString: string) => {
-    if (!cycles || cycles.length === 0) return 0;
-    const periodLength = userSettings?.averagePeriodLength || 5;
-    
-    for (const cycle of cycles) {
-      const startDate = new Date(cycle.startDate);
-      const checkDate = new Date(dateString);
-      const daysDiff = Math.floor((checkDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      // If the cycle has a manual end date
-      if (cycle.endDate) {
-        const endDate = new Date(cycle.endDate);
-        if (checkDate >= startDate && checkDate <= endDate) {
-          return daysDiff + 1;
-        }
-      } else {
-        // Otherwise use predicted length
-        if (daysDiff >= 0 && daysDiff < periodLength) {
-          return daysDiff + 1;
-        }
-      }
-    }
-    return 0;
-  };
+  const getPeriodDays = (dateString: string) =>
+    getPeriodDay(dateString, cycles || [], userSettings?.averagePeriodLength || 5);
 
   const getLogForDate = (dateString: string) => logs.find((log) => log.date === dateString);
 

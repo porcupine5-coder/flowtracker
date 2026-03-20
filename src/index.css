@@ -82,7 +82,95 @@ body {
 }
 
 /* Ensure these transitions don't break specific animations */
-.parallax-star, .animate-bounce, .animate-pulse, .animate-spin {
+.parallax-star, .animate-bounce, .animate-pulse, .animate-spin,
+.bg-crossfade *, .bg-crossfade .parallax-star {
+  transition: none !important;
+}
+
+/* ── Background Animation System ────────────────────────────── */
+
+/* Canvas element for alternative animations */
+.bg-animation-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  will-change: contents;
+  backface-visibility: hidden;
+}
+
+/* Cross-fade wrapper for smooth transitions between star-field and alt */
+.bg-crossfade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  overflow: visible;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Don't let the crossfade wrapper interfere with child CSS animations */
+.bg-crossfade .parallax-star {
+  transition: none !important;
+}
+
+/* Animation toggle button */
+.animation-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.animation-toggle-btn:hover {
+  background: var(--bg);
+  color: var(--primary);
+  border-color: var(--border);
+}
+
+.animation-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+.animation-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Icon transition inside toggle */
+.toggle-icon {
+  display: inline-flex;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toggle-icon-active {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+/* ── Reduced Motion ─────────────────────────────────────────── */
+html.reduce-motion .parallax-star,
+html.reduce-motion .bg-animation-canvas {
+  animation: none !important;
+}
+
+html.reduce-motion .bg-crossfade {
+  transition: none !important;
+}
+
+html.reduce-motion .toggle-icon {
   transition: none !important;
 }
 

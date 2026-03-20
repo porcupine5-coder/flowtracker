@@ -330,6 +330,53 @@ export const manualEndCurrentCycle = mutation({
   },
 });
 
+/**
+ * Records an early period termination.
+ *
+ * Unlike manualEndCurrentCycle (which ends the full cycle), this only updates
+ * the cycle's periodLength so the calendar stops showing period-day indicators
+ * on days after the actual last flow day.  The cycle itself continues (the user
+ * moves into follicular/ovulation/luteal phases as normal).
+ *
+ * The updated periodLength is immediately picked up by getPeriodDay in
+ * calendarUtils.ts, triggering a full calendar redraw via Convex reactivity.
+ */
+export const endPeriodEarly = mutation({
+  args: {
+    periodEndDate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const activeCycle = await ctx.db
+      .query("cycles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .first();
+
+    if (!activeCycle) throw new Error("No active cycle found");
+    if (activeCycle.endDate) throw new Error("Current cycle has already ended");
+
+    const startDate = new Date(activeCycle.startDate);
+    const endDate = new Date(args.periodEndDate);
+    const daysDiff = Math.floor(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysDiff < 0) {
+      throw new Error("Period end date cannot be before cycle start date");
+    }
+
+    // endDate is the last flow day (inclusive), so actual period length = daysDiff + 1
+    const actualPeriodLength = daysDiff + 1;
+
+    await ctx.db.patch(activeCycle._id, {
+      periodLength: actualPeriodLength,
+    });
+  },
+});
+
 export const getRecentLogs = query({
   args: {},
   handler: async (ctx) => {

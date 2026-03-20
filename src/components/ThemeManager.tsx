@@ -7,7 +7,7 @@ import { getCurrentPhase } from "../lib/cycle";
 
 export function ThemeProvider({ children, darkMode }: { children: React.ReactNode; darkMode: boolean }) {
   const settings = useQuery(api.cycles.getUserSettings);
-  const themeName = (settings as any)?.themeName;
+  const themeName = (settings as any)?.themeName || "";
 
   const currentPhase = useMemo(() => {
     if (!settings?.lastPeriodStart) return null;
@@ -19,13 +19,14 @@ export function ThemeProvider({ children, darkMode }: { children: React.ReactNod
   }, [settings]);
 
   useEffect(() => {
-    applyTheme(darkMode, themeName);
+    applyTheme(darkMode, themeName || undefined);
   }, [darkMode, settings, themeName]);
 
   const value = useMemo(() => ({
     isDarkMode: darkMode,
     phase: currentPhase,
-  }), [darkMode, currentPhase]);
+    themeName: themeName,
+  }), [darkMode, currentPhase, themeName]);
 
   return (
     <ThemeContext.Provider value={value}>

@@ -1,4 +1,8 @@
 import React, { useMemo } from 'react';
+import { useBackgroundAnimation } from './BackgroundAnimationContext';
+import { useTheme } from './useTheme';
+import { getAnimationConfig } from '../lib/backgroundAnimations';
+import { AltBackgroundRenderer } from './AltBackgroundRenderer';
 
 export interface ParallaxBackgroundProps {
   children?: React.ReactNode;
@@ -31,6 +35,28 @@ export function ParallaxBackground({
   density = "high",
   disableAnimation = false
 }: ParallaxBackgroundProps) {
+  // Pull animation context (safe fallback if provider missing)
+  let animationMode: "stars" | "alt" = "stars";
+  let reducedMotion = false;
+  let themeName = "";
+  let isDark = isDarkMode;
+
+  try {
+    const bgCtx = useBackgroundAnimation();
+    animationMode = bgCtx.animationMode;
+    reducedMotion = bgCtx.reducedMotion;
+  } catch {
+    // Provider not mounted yet — default to stars
+  }
+
+  try {
+    const themeCtx = useTheme();
+    themeName = themeCtx.themeName || "";
+    isDark = themeCtx.isDarkMode;
+  } catch {
+    // fallback
+  }
+
   const starCounts = {
     low: { small: 180, medium: 60, big: 30 },
     medium: { small: 360, medium: 120, big: 60 },
@@ -45,7 +71,17 @@ export function ParallaxBackground({
   const wrapperClasses = `relative w-full ${
     allowScroll ? "h-screen overflow-y-auto overflow-x-hidden" : "h-screen overflow-hidden"
   } font-sans ${className}`;
-  const animationPlayState = disableAnimation ? "paused" : "running";
+
+  const animationPlayState = disableAnimation || reducedMotion ? "paused" : "running";
+
+  const isStars = animationMode === "stars";
+  const isAlt = animationMode === "alt";
+
+  // Get alternative animation config for current theme
+  const altConfig = useMemo(
+    () => getAnimationConfig(themeName, isDark),
+    [themeName, isDark]
+  );
 
   return (
     <div 
@@ -67,52 +103,71 @@ export function ParallaxBackground({
         }
       `}</style>
 
-      {/* Stars Layer 1 (Small) - Fastest */}
-      <div 
-        className="absolute left-0 top-0 w-[1px] h-[1px] bg-transparent z-10 parallax-star"
-        style={{ 
-          boxShadow: shadowsSmall,
-          animationDuration: `${50 / speed}s`,
-          animationPlayState,
-          willChange: "transform"
-        }}
+      {/* ── Stars Layer (cross-fades out when alt is active) ── */}
+      <div
+        className="bg-crossfade"
+        style={{ opacity: isStars ? 1 : 0 }}
       >
+        {/* Stars Layer 1 (Small) - Fastest */}
         <div 
-          className="absolute top-[2000px] w-[1px] h-[1px] bg-transparent"
-          style={{ boxShadow: shadowsSmall }}
-        />
+          className="absolute left-0 top-0 w-[1px] h-[1px] bg-transparent z-10 parallax-star"
+          style={{ 
+            boxShadow: shadowsSmall,
+            animationDuration: `${50 / speed}s`,
+            animationPlayState,
+            willChange: "transform"
+          }}
+        >
+          <div 
+            className="absolute top-[2000px] w-[1px] h-[1px] bg-transparent"
+            style={{ boxShadow: shadowsSmall }}
+          />
+        </div>
+
+        {/* Stars Layer 2 (Medium) */}
+        <div 
+          className="absolute left-0 top-0 w-[2px] h-[2px] bg-transparent z-10 parallax-star"
+          style={{ 
+            boxShadow: shadowsMedium,
+            animationDuration: `${100 / speed}s`,
+            animationPlayState,
+            willChange: "transform"
+          }}
+        >
+          <div 
+            className="absolute top-[2000px] w-[2px] h-[2px] bg-transparent"
+            style={{ boxShadow: shadowsMedium }}
+          />
+        </div>
+
+        {/* Stars Layer 3 (Big) - Slowest */}
+        <div 
+          className="absolute left-0 top-0 w-[3px] h-[3px] bg-transparent z-10 parallax-star"
+          style={{ 
+            boxShadow: shadowsBig,
+            animationDuration: `${150 / speed}s`,
+            animationPlayState,
+            willChange: "transform"
+          }}
+        >
+          <div 
+            className="absolute top-[2000px] w-[3px] h-[3px] bg-transparent"
+            style={{ boxShadow: shadowsBig }}
+          />
+        </div>
       </div>
 
-      {/* Stars Layer 2 (Medium) */}
-      <div 
-        className="absolute left-0 top-0 w-[2px] h-[2px] bg-transparent z-10 parallax-star"
-        style={{ 
-          boxShadow: shadowsMedium,
-          animationDuration: `${100 / speed}s`,
-          animationPlayState,
-          willChange: "transform"
-        }}
+      {/* ── Alt Animation Layer (cross-fades in) ── */}
+      <div
+        className="bg-crossfade"
+        style={{ opacity: isAlt ? 1 : 0 }}
       >
-        <div 
-          className="absolute top-[2000px] w-[2px] h-[2px] bg-transparent"
-          style={{ boxShadow: shadowsMedium }}
-        />
-      </div>
-
-      {/* Stars Layer 3 (Big) - Slowest */}
-      <div 
-        className="absolute left-0 top-0 w-[3px] h-[3px] bg-transparent z-10 parallax-star"
-        style={{ 
-          boxShadow: shadowsBig,
-          animationDuration: `${150 / speed}s`,
-          animationPlayState,
-          willChange: "transform"
-        }}
-      >
-        <div 
-          className="absolute top-[2000px] w-[3px] h-[3px] bg-transparent"
-          style={{ boxShadow: shadowsBig }}
-        />
+        {isAlt && (
+          <AltBackgroundRenderer
+            config={altConfig}
+            reducedMotion={reducedMotion}
+          />
+        )}
       </div>
 
       {/* Content Container */}
