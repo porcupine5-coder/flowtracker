@@ -30,3 +30,14 @@ if (!convexUrl) {
     </ConvexAuthProvider>,
   );
 }
+
+import { registerSW } from "virtual:pwa-register";
+
+registerSW({
+  onRegisteredSW(_, registration) {
+    if (registration) console.log("PWA: Service worker registered", registration.scope);
+  },
+  onRegisterError(err) {
+    console.error("PWA: Service worker registration failed", err);
+  },
+});

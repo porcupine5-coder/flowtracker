@@ -113,7 +113,11 @@ export function SignInForm() {
             >
               {showPassword ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 3l18 18M10.585 10.586a2 2 0 002.828 2.828M9.878 5.093A9.953 9.953 0 0112 4.5c4.418 0 8.19 2.865 9.543 7a9.969 9.969 0 01-4.132 5.411M6.228 6.228A9.965 9.965 0 002.458 12c1.353 4.135 5.125 7 9.542 7a9.95 9.95 0 003.273-.546"
+                  />
                 </svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

@@ -72,13 +72,23 @@ export const themes = {
       accent: "#4338ca",
       text: "#451a03",
     },
-    mintFresh: {
-      bg: "#f0fdfa",
-      surface: "#ccfbf1",
-      primary: "#0f766e",
-      secondary: "#0d9488",
-      accent: "#b91c1c",
-      text: "#042f2e",
+    Sagegreen: {
+      bg: "#F8F9F7",
+      background: "#F8F9F7",
+      surface: "#EAEDE7",
+      primary: "#9CAF88",
+      secondary: "#7A9167",
+      accent: "#5E7350",
+      text: "#3A3F37",
+      "primary-hover": "#7A9167",
+      "primary-active": "#5E7350",
+      "primary-light": "#D9E4D3",
+      "primary-subtle": "#F2F5EF",
+      "primary-text": "#3D4F34",
+      border: "#CDD4C7",
+      "text-body": "#3A3F37",
+      "text-muted": "#8C9985",
+      "text-heading": "#1C2019",
     },
   },
   dark: {
@@ -179,6 +189,9 @@ export function applyTheme(darkMode: boolean, themeName?: string) {
   }
 
   if (theme) {
+    const hasThemeVar = (key: string) =>
+      Object.prototype.hasOwnProperty.call(theme, key);
+
     // Set core CSS variables used by index.css and components
     for (const [key, value] of Object.entries(theme)) {
       root.style.setProperty(`--${key}`, value);
@@ -186,9 +199,15 @@ export function applyTheme(darkMode: boolean, themeName?: string) {
 
     // Generate derived colors for consistency
     // We can use the primary color with different opacities for muted/hover states if not provided
-    root.style.setProperty("--primary-hover", `${theme.primary}dd`);
-    root.style.setProperty("--text-muted", darkMode ? "#9d97b0" : "#a8a29e");
-    root.style.setProperty("--border", darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)");
+    if (!hasThemeVar("primary-hover")) {
+      root.style.setProperty("--primary-hover", `${theme.primary}dd`);
+    }
+    if (!hasThemeVar("text-muted")) {
+      root.style.setProperty("--text-muted", darkMode ? "#9d97b0" : "#a8a29e");
+    }
+    if (!hasThemeVar("border")) {
+      root.style.setProperty("--border", darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)");
+    }
     root.style.setProperty("--border-strong", darkMode ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)");
   }
 
