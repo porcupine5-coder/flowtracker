@@ -269,6 +269,139 @@ html.reduce-motion .toggle-icon {
   animation: shimmer 1.5s infinite;
 }
 
+/* ── Honeycomb Loader (lightweight + theme-aware) ───────────────── */
+@keyframes honeycomb {
+  0%,
+  20%,
+  80%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, calc(var(--hc-size) * 0.42), 0) scale(0.85);
+  }
+
+  30%,
+  70% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.honeycomb {
+  /* Default size; override via style={{ ["--hc-size" as any]: "32px" }} */
+  --hc-size: 24px;
+  --hc-half: calc(var(--hc-size) / 2);
+  --hc-quarter: calc(var(--hc-size) / 4);
+  --hc-x: calc(var(--hc-size) * 1.1666667);
+  --hc-x-small: calc(var(--hc-size) * 0.5833333);
+  --hc-y: calc(var(--hc-size) * 0.9166667);
+
+  height: var(--hc-size);
+  width: var(--hc-size);
+  position: relative;
+  display: inline-block;
+  color: var(--primary);
+
+  /* Avoid the global `* { transition: opacity ... }` from interfering */
+  transition: none !important;
+  contain: layout paint;
+}
+
+.honeycomb,
+.honeycomb * {
+  transition: none !important;
+}
+
+.honeycomb div {
+  animation: honeycomb 1.35s infinite ease-in-out;
+  animation-fill-mode: backwards;
+
+  background: currentColor;
+  height: var(--hc-half);
+  margin-top: var(--hc-quarter);
+  position: absolute;
+  width: var(--hc-size);
+
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.honeycomb div:after,
+.honeycomb div:before {
+  content: "";
+  border-left: var(--hc-half) solid transparent;
+  border-right: var(--hc-half) solid transparent;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.honeycomb div:after {
+  top: calc(var(--hc-quarter) * -1);
+  border-bottom: var(--hc-quarter) solid currentColor;
+}
+
+.honeycomb div:before {
+  bottom: calc(var(--hc-quarter) * -1);
+  border-top: var(--hc-quarter) solid currentColor;
+}
+
+.honeycomb div:nth-child(1) {
+  animation-delay: 0s;
+  left: calc(var(--hc-x) * -1);
+  top: 0;
+}
+
+.honeycomb div:nth-child(2) {
+  animation-delay: 0.1s;
+  left: calc(var(--hc-x-small) * -1);
+  top: var(--hc-y);
+}
+
+.honeycomb div:nth-child(3) {
+  animation-delay: 0.2s;
+  left: var(--hc-x-small);
+  top: var(--hc-y);
+}
+
+.honeycomb div:nth-child(4) {
+  animation-delay: 0.3s;
+  left: var(--hc-x);
+  top: 0;
+}
+
+.honeycomb div:nth-child(5) {
+  animation-delay: 0.4s;
+  left: var(--hc-x-small);
+  top: calc(var(--hc-y) * -1);
+}
+
+.honeycomb div:nth-child(6) {
+  animation-delay: 0.5s;
+  left: calc(var(--hc-x-small) * -1);
+  top: calc(var(--hc-y) * -1);
+}
+
+.honeycomb div:nth-child(7) {
+  animation-delay: 0.6s;
+  left: 0;
+  top: 0;
+}
+
+html.reduce-motion .honeycomb div {
+  animation: none !important;
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .honeycomb div {
+    animation: none !important;
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
 /* AI Assistant Floating Window Styles */
 .ai-assistant-window {
   position: fixed;
@@ -285,15 +418,19 @@ html.reduce-motion .toggle-icon {
 
 .ai-assistant-backdrop {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   backdrop-filter: blur(4px);
-  background: rgba(0, 0, 0, 0.2);
+  -webkit-backdrop-filter: blur(4px);
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
   pointer-events: none;
-  z-index: 45;
+  z-index: 100;
 }
 
 html.dark .ai-assistant-backdrop {
-  background: rgba(0, 0, 0, 0.4);
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 .ai-draggable {
@@ -401,6 +538,32 @@ html.dark .ai-assistant-backdrop {
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+/* Welcome heading typewriter cursor */
+@keyframes typewriterCursorBlink {
+  0%, 45% { opacity: 1; }
+  46%, 100% { opacity: 0; }
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 0.6ch;
+  margin-left: 2px;
+  color: currentColor;
+  animation: typewriterCursorBlink 0.9s steps(1, end) infinite;
+}
+
+html.reduce-motion .typewriter-cursor {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typewriter-cursor {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }
 
 .ai-empty-dots span {

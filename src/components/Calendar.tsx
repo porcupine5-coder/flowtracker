@@ -53,11 +53,34 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       days.push(<div key={`empty-${i}`} />);
     }
 
-    const phaseColors: Record<string, string> = {
-      menstrual: "bg-red-500/20 dark:bg-red-900/30 border-red-300 dark:border-red-800 text-red-700 dark:text-red-400",
-      follicular: "bg-emerald-500/20 dark:bg-emerald-900/30 border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400",
-      ovulation: "bg-amber-500/20 dark:bg-amber-900/30 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400",
-      luteal: "bg-purple-500/20 dark:bg-purple-900/30 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-400",
+    const calendarMode = userSettings?.calendarMode || "full";
+    const isBorderMode = calendarMode === "border";
+
+    const phaseStyles: Record<string, { bg: string, border: string, text: string, ring: string }> = {
+      menstrual: {
+        bg: isBorderMode ? "bg-transparent" : "bg-rose-300/20 dark:bg-rose-900/30",
+        border: isBorderMode ? "border-rose-400 border-2" : "border-rose-300 dark:border-rose-700",
+        text: "text-rose-700 dark:text-rose-300 font-bold",
+        ring: isBorderMode ? "ring-rose-400/10" : ""
+      },
+      follicular: {
+        bg: isBorderMode ? "bg-transparent" : "bg-amber-300/20 dark:bg-amber-900/25",
+        border: isBorderMode ? "border-amber-400 border-2 shadow-[0_0_8px_rgba(217,119,6,0.14)]" : "border-amber-300 dark:border-amber-700",
+        text: "text-amber-700 dark:text-amber-300 font-bold",
+        ring: isBorderMode ? "ring-amber-400/10" : ""
+      },
+      ovulation: {
+        bg: isBorderMode ? "bg-transparent shadow-[inset_0_0_12px_rgba(16,185,129,0.08)]" : "bg-emerald-300/22 dark:bg-emerald-900/30",
+        border: "border-emerald-400 border-2 shadow-[0_0_10px_rgba(16,185,129,0.18)]",
+        text: "text-emerald-700 dark:text-emerald-300 font-extrabold",
+        ring: "ring-emerald-400/20 ring-2"
+      },
+      luteal: {
+        bg: isBorderMode ? "bg-transparent" : "bg-violet-300/15 dark:bg-violet-900/28",
+        border: isBorderMode ? "border-violet-400 border-2" : "border-violet-300 dark:border-violet-700",
+        text: "text-violet-700 dark:text-violet-300 font-bold",
+        ring: isBorderMode ? "ring-violet-400/10" : ""
+      },
     };
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -74,36 +97,44 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       let textClass = "text-[var(--text)]";
       let borderClass = "rounded-2xl border border-transparent";
       let animClass = "";
+      let shadowClass = "";
       const tooltipText = phase ? `${phase} phase` : "";
 
-      if (isPeriod) {
-        if (log?.flow && log.flow !== "none") {
-          bgClass = "bg-gradient-to-br from-red-500 to-red-400 dark:from-red-600 dark:to-red-500 shadow-md";
-          textClass = "text-white font-bold";
-        } else {
-          bgClass = "bg-red-500/20 dark:bg-red-900/30 border-red-300 dark:border-red-800";
-          textClass = "text-red-600 dark:text-red-400 font-medium";
-        }
+        if (isPeriod) {
+          if (log?.flow && log.flow !== "none") {
+            bgClass = "bg-gradient-to-br from-rose-600 to-rose-500 shadow-lg scale-105 z-10";
+            textClass = "text-white font-black";
+            borderClass = "border-rose-400 border-2";
+            shadowClass = "shadow-rose-500/35";
+          } else {
+            bgClass = isBorderMode ? "bg-rose-400/8" : "bg-rose-300/20 dark:bg-rose-900/30";
+            borderClass = "border-rose-400 border-2";
+            textClass = "text-rose-700 dark:text-rose-300 font-heavy";
+            shadowClass = "shadow-[0_0_8px_rgba(244,63,94,0.16)]";
+          }
         const blobShapes = ["rounded-[35%_65%_30%_70%]", "rounded-[60%_40%_70%_30%]", "rounded-[40%_60%_60%_40%]"];
-        borderClass = blobShapes[periodDay % blobShapes.length];
+        borderClass += " " + blobShapes[periodDay % blobShapes.length];
       } else if (isSelected) {
-        bgClass = "bg-[var(--primary)] shadow-lg";
-        textClass = "text-white font-semibold";
-      } else if (phase && phaseColors[phase]) {
-        bgClass = phaseColors[phase].split(" ").filter(c => c.startsWith("bg-") || c.startsWith("dark:bg-")).join(" ");
-        borderClass = "rounded-2xl border " + phaseColors[phase].split(" ").filter(c => c.startsWith("border-") || c.startsWith("dark:border-")).join(" ");
-        textClass = phaseColors[phase].split(" ").filter(c => c.startsWith("text-") || c.startsWith("dark:text-")).join(" ");
-        if (phase === "ovulation") animClass = "animate-ring-pulse ring-2 ring-amber-400";
+        bgClass = "bg-[var(--primary)] shadow-xl scale-110 z-10";
+        textClass = "text-white font-bold";
+        borderClass = "rounded-2xl border-white/20 border-2";
+      } else if (phase && phaseStyles[phase]) {
+        const style = phaseStyles[phase];
+        bgClass = style.bg;
+        borderClass = "rounded-2xl " + style.border;
+        textClass = style.text;
+        if (style.ring) borderClass += " " + style.ring;
+        if (phase === "ovulation") animClass = "animate-ring-pulse";
       }
 
       if (isToday) {
-        borderClass += " ring-2 ring-[var(--primary)] ring-offset-2 dark:ring-offset-[var(--bg)]";
+        borderClass += " ring-2 ring-[var(--primary)] ring-offset-2 dark:ring-offset-[var(--bg)] shadow-inner";
         animClass += " animate-breathe";
       }
 
       if (isFuture && !isToday && !isSelected && !isPeriod && phase !== "ovulation") {
-        textClass = "text-[var(--text-muted)]";
-        bgClass = "bg-transparent";
+        textClass = "text-[var(--text-muted)] p-[2px]";
+        if (isBorderMode) bgClass = "bg-transparent";
       }
 
       days.push(
@@ -115,7 +146,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
           }}
           title={tooltipText}
           aria-label={`${monthNames[month]} ${day}, ${year}${phase ? `, ${phase} phase` : ""}${isPeriod ? ", period day" : ""}`}
-          className={`relative aspect-square flex flex-col items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-110 hover:shadow-md active:scale-95 group ${bgClass} ${textClass} ${borderClass} ${animClass}`}
+          className={`relative aspect-square flex flex-col items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer hover:scale-110 hover:shadow-lg active:scale-95 group ${bgClass} ${textClass} ${borderClass} ${animClass} ${shadowClass}`}
         >
           <span className="relative z-10">{day}</span>
           
@@ -150,6 +181,9 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
     const year = currentDate.getFullYear();
     const months = [];
 
+    const calendarMode = userSettings?.calendarMode || "full";
+    const isBorderMode = calendarMode === "border";
+
     for (let m = 0; m < 12; m++) {
       const firstDayOfMonth = new Date(year, m, 1);
       const daysInMonth = new Date(year, m + 1, 0).getDate();
@@ -167,38 +201,46 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         const isOvulation = phase === "ovulation";
         const isToday = dateString === todayString;
 
-        let bgClass = "transparent";
+        let bgClass = "bg-transparent";
         let textClass = "text-[var(--text)]";
-        let ringClass = "";
+        let borderClass = "border-transparent";
 
         if (isPeriod) {
           const log = logs.find(l => l.date === dateString);
           if (log?.flow && log.flow !== "none") {
-            bgClass = "bg-red-500 shadow-sm";
-            textClass = "text-white";
+            bgClass = "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.28)]";
+            textClass = "text-white scale-110";
+            borderClass = "border-rose-600 border-[1.5px]";
           } else {
-            bgClass = "bg-red-200 dark:bg-red-900/40 border border-red-400/30";
-            textClass = "text-red-700 dark:text-red-300";
+            bgClass = isBorderMode ? "bg-rose-400/10" : "bg-rose-200/70 dark:bg-rose-900/45";
+            textClass = "text-rose-700 dark:text-rose-300";
+            borderClass = "border-rose-500 border-[1.5px] shadow-sm";
           }
         } else if (isOvulation) {
-          bgClass = "bg-amber-500/20 border border-amber-300 shadow-sm";
-          textClass = "text-amber-700 dark:text-amber-400";
-          ringClass = "ring-1 ring-amber-400";
+          bgClass = isBorderMode ? "bg-emerald-400/10" : "bg-emerald-300/24 dark:bg-emerald-900/28";
+          textClass = "text-emerald-700 dark:text-emerald-300 font-black";
+          borderClass = "border-emerald-400 border-[1.5px] shadow-[0_0_8px_rgba(16,185,129,0.18)]";
         } else if (isToday) {
           bgClass = "bg-[var(--primary)]";
           textClass = "text-white";
-          ringClass = "ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0";
+          borderClass = "border-white/40 border ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0 scale-110";
+        } else if (phase === "menstrual") {
+          bgClass = isBorderMode ? "bg-rose-400/6" : "bg-rose-300/18 dark:bg-rose-900/28";
+          textClass = "text-rose-700 dark:text-rose-300 font-bold";
+          borderClass = "border-rose-400 border-[1.5px]";
         } else if (phase === "follicular") {
-          bgClass = "bg-emerald-500/10";
-          textClass = "text-emerald-700 dark:text-emerald-400";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-amber-300/16 dark:bg-amber-900/24";
+          textClass = "text-amber-700 dark:text-amber-300 font-bold";
+          borderClass = "border-amber-400 border-[1.5px]";
         } else if (phase === "luteal") {
-          bgClass = "bg-purple-500/10";
-          textClass = "text-purple-700 dark:text-purple-400";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-violet-300/14 dark:bg-violet-900/24";
+          textClass = "text-violet-700 dark:text-violet-300";
+          borderClass = "border-violet-400 border-[1.5px]";
         }
 
         days.push(
-          <div key={day} className="w-full aspect-square flex items-center justify-center p-[1px]">
-            <div className={`w-full h-full flex items-center justify-center rounded-full text-[8px] font-bold ${bgClass} ${textClass} ${ringClass} transition-all duration-300`}>
+          <div key={day} className="w-full aspect-square flex items-center justify-center p-[0.5px]">
+            <div className={`w-full h-full flex items-center justify-center rounded-full text-[7px] font-bold ${bgClass} ${textClass} ${borderClass} transition-all duration-300`}>
               {day}
             </div>
           </div>
@@ -328,23 +370,23 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-4 px-1">Phase Legend</h4>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-red-500 shadow-sm transition-transform group-hover:scale-110" />
-            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Menstrual</span>
+            <div className="w-4 h-4 rounded-lg bg-rose-400/70 shadow-[0_0_8px_rgba(244,63,94,0.18)] border border-rose-400 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Menstrual</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-emerald-500/20 border border-emerald-300 shadow-sm transition-transform group-hover:scale-110" />
-            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Follicular</span>
+            <div className="w-4 h-4 rounded-lg bg-amber-300/40 border-2 border-amber-400 shadow-[0_0_7px_rgba(217,119,6,0.14)] transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Follicular</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-amber-500/20 border border-amber-300 ring-2 ring-amber-400 shadow-sm transition-transform group-hover:scale-110" />
-            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Ovulation</span>
+            <div className="w-4 h-4 rounded-lg bg-emerald-300/45 border-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.16)] ring-1 ring-emerald-400/35 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Ovulation</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-purple-500/20 border border-purple-300 shadow-sm transition-transform group-hover:scale-110" />
-            <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Luteal</span>
+            <div className="w-4 h-4 rounded-lg bg-violet-300/35 border-2 border-violet-400 transition-transform group-hover:scale-110" />
+            <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Luteal</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-[var(--surface)] ring-2 ring-[var(--primary)] ring-offset-1 shadow-sm transition-transform group-hover:scale-110" />
+            <div className="w-4 h-4 rounded-full bg-[var(--surface)] ring-2 ring-[var(--primary)] ring-offset-1 shadow-md transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">Today</span>
           </div>
         </div>

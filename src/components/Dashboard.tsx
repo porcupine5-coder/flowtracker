@@ -8,17 +8,23 @@ import { PredictionCard } from "./PredictionCard";
 import { AIAssistant } from "./AIAssistant";
 import { SettingsPanel } from "./SettingsPanel";
 import { DailyCare } from "./DailyCare";
+import { HoneycombLoader } from "./HoneycombLoader";
+import { FeedbackForms } from "./FeedbackForms";
+import { TypewriterWelcome } from "./TypewriterWelcome";
 
 export function Dashboard() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showPorcupineModal, setShowPorcupineModal] = useState(false);
   const userSettings = useQuery(api.cycles.getUserSettings);
   const cycles = useQuery(api.cycles.getCycles);
   const recentLogs = useQuery(api.cycles.getRecentLogs);
   const loggedInUser = useQuery(api.auth.loggedInUser);
 
-  const isShreeya = loggedInUser?.email === "metheotakj@gmail.com";
+  const SPECIAL_PORCUPINE_EMAIL = "metheotakj@gmail.com";
+  const normalizedLoggedInEmail = (loggedInUser?.email || "").trim().toLowerCase();
+  const isPorcupineUser = normalizedLoggedInEmail === SPECIAL_PORCUPINE_EMAIL;
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -30,14 +36,33 @@ export function Dashboard() {
     setSelectedDate(null);
   };
 
+  const handleWelcomeIconClick = () => {
+    // Debug logging to verify exclusivity behavior.
+    console.debug("[Porcupine] welcome icon clicked", {
+      loggedInEmail: loggedInUser?.email,
+      normalizedLoggedInEmail,
+      isPorcupineUser,
+    });
+
+    if (!loggedInUser) {
+      console.debug("[Porcupine] no loggedInUser; ignoring click.");
+      return;
+    }
+
+    if (!isPorcupineUser) {
+      console.debug("[Porcupine] user not eligible; ignoring click.");
+      return;
+    }
+
+    console.debug("[Porcupine] opening modal.");
+    setShowPorcupineModal(true);
+  };
+
   if (userSettings === undefined || cycles === undefined || recentLogs === undefined) {
     return (
       <div className="flex items-center justify-center min-h-[400px] w-full bg-[var(--bg)]/50 backdrop-blur-sm rounded-3xl border border-[var(--border)]">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative w-10 h-10">
-            <div className="absolute inset-0 border-3 border-[var(--primary)]/20 rounded-full"></div>
-            <div className="absolute inset-0 border-3 border-t-[var(--primary)] rounded-full animate-spin"></div>
-          </div>
+          <HoneycombLoader size={40} />
           <p className="text-sm font-medium text-[var(--text-muted)]">Synchronizing cycle data...</p>
         </div>
       </div>
@@ -57,13 +82,27 @@ export function Dashboard() {
     <div className="space-y-6 md:space-y-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-[2rem] bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white text-2xl md:text-3xl shadow-xl shadow-[var(--primary)]/20 rotate-3 transform hover:rotate-6 transition-transform">
-            🌸
-          </div>
+          {isPorcupineUser ? (
+            <button
+              type="button"
+              onClick={handleWelcomeIconClick}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-[2rem] bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center shadow-xl shadow-[var(--primary)]/20 rotate-3 transform hover:rotate-6 transition-transform overflow-hidden border-2 border-white/20 cursor-pointer"
+              aria-label="Open a special message"
+              title="Tap for a special message"
+            >
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+            </button>
+          ) : (
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-[2rem] bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center shadow-xl shadow-[var(--primary)]/20 rotate-3 transform hover:rotate-6 transition-transform overflow-hidden border-2 border-white/20">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+            </div>
+          )}
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight">
-              Welcome back, {isShreeya ? "Shreeya" : (loggedInUser?.name || "Friend")}
-            </h1>
+            <TypewriterWelcome
+              userEmail={loggedInUser?.email}
+              userName={loggedInUser?.name}
+              className="text-2xl md:text-3xl font-extrabold text-[var(--text)] tracking-tight min-h-[2.2rem] md:min-h-[2.7rem]"
+            />
             <p className="text-sm md:text-base text-[var(--text-muted)] font-medium">
               Your body, your rhythm. Let's track your journey today.
             </p>
@@ -103,10 +142,10 @@ export function Dashboard() {
             settings={safeSettings}
             cycles={safeCycles}
           />
+          <FeedbackForms />
         </div>
       </div>
 
-      <AIAssistant isShreeya={isShreeya} />
 
       {/* Modals */}
       {showLogModal && selectedDate && (
@@ -117,6 +156,69 @@ export function Dashboard() {
           settings={safeSettings}
           onClose={() => setShowSettings(false)}
         />
+      )}
+
+      {showPorcupineModal && isPorcupineUser && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[200]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Porcupine message"
+          onMouseDown={(e) => {
+            // Close on backdrop click only.
+            if (e.currentTarget === e.target) setShowPorcupineModal(false);
+          }}
+        >
+          <div className="bg-[var(--surface)] w-full max-w-md rounded-3xl border border-[var(--border)] shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-[var(--border)] bg-gradient-to-br from-[var(--primary)]/10 to-transparent">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-extrabold text-[var(--text)] flex items-center gap-2">
+                    <span className="text-2xl" aria-hidden="true">
+                      🦔
+                    </span>
+                    Personalized message
+                  </h3>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">
+                    For {loggedInUser?.email}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPorcupineModal(false)}
+                  className="p-2 rounded-xl hover:bg-[var(--border)] transition-colors text-[var(--text-muted)]"
+                  aria-label="Close message"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-5">
+                <p className="text-base md:text-lg font-semibold text-[var(--text)] leading-relaxed">
+                  Mr. Porcupine is always there for you and loves you alot . I miss you too , i know i make you made and upset you alot but i will always t=be there for you when noone is i promsie to be there in hardtimes , so don;t think twice to come to me when you need someone to talk to or when you just want to vent . I care about you so much and i want you to be happy and healthy always <span className="text-xl" aria-hidden="true">❤️</span>
+                </p>
+              </div>
+
+              <div className="mt-4 text-sm text-[var(--text-muted)]">
+                Tap the icon next to your welcome message to see this again anytime.
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPorcupineModal(false)}
+                  className="flex-1 py-2.5 border border-[var(--border)] rounded-xl text-sm font-semibold text-[var(--text-muted)] hover:bg-[var(--border)] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -360,7 +360,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       {isOpen && (
         <div
           ref={windowRef}
-          className={`ai-assistant-window fixed bg-[var(--surface)] border border-[var(--border-strong)] flex flex-col overflow-hidden z-50 ${
+          className={`ai-assistant-window fixed bg-[var(--surface)] border border-[var(--border-strong)] flex flex-col overflow-hidden z-[110] ${
             isDragging ? "dragging" : ""
           } ${isMobile ? "ai-assistant-sheet" : ""}`}
           style={{

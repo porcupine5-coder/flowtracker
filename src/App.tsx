@@ -10,16 +10,15 @@ import { ThemeProvider } from "./components/ThemeManager";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { BackgroundAnimationProvider } from "./components/BackgroundAnimationContext";
 import { AnimationToggleButton } from "./components/AnimationToggleButton";
+import { AIAssistant } from "./components/AIAssistant";
+import { HoneycombLoader } from "./components/HoneycombLoader";
 
 function LoadingScreen({ darkMode, message = "Loading your dashboard..." }: { darkMode: boolean; message?: string }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg)] z-[9999]">
       <div className="flex flex-col items-center gap-4">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 border-4 border-indigo-200/30 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
-        </div>
-        <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'} animate-pulse`}>
+        <HoneycombLoader size={48} />
+        <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
           {message}
         </p>     
       </div>
@@ -33,6 +32,8 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
   if (loggedInUser === undefined) {
     return <LoadingScreen darkMode={darkMode} message="Identifying user..." />;
   }
+
+  const isShreeya = loggedInUser?.email === "metheotakj@gmail.com";
 
   return (
     <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="medium">
@@ -73,6 +74,7 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
             <Dashboard />
           </div>
         </main>
+        <AIAssistant isShreeya={isShreeya} />
       </div>
     </ParallaxBackground>
   );

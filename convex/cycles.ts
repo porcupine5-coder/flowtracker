@@ -65,6 +65,7 @@ export const updateUserSettings = mutation({
     partnerEmail: v.optional(v.string()),
     enablePartnerSharing: v.optional(v.boolean()),
     themeName: v.optional(v.string()),
+    calendarMode: v.optional(v.union(v.literal("full"), v.literal("border"))),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

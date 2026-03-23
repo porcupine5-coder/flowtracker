@@ -19,6 +19,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
   const [partnerEmail, setPartnerEmail] = useState(settings.partnerEmail || "");
   const [enableSharing, setEnableSharing] = useState(settings.enablePartnerSharing || false);
   const [selectedTheme, setSelectedTheme] = useState(settings.themeName || "");
+  const [calendarMode, setCalendarMode] = useState<"full" | "border">(settings.calendarMode || "full");
   const [isSaving, setIsSaving] = useState(false);
 
   // Apply preview theme immediately
@@ -43,6 +44,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
         partnerEmail: enableSharing ? partnerEmail : undefined,
         enablePartnerSharing: enableSharing,
         themeName: selectedTheme || undefined,
+        calendarMode,
       });
       toast.success("Settings saved", { duration: 2000 });
       onClose();
@@ -141,6 +143,38 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Calendar Display Mode */}
+          <div>
+            <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-3">Calendar Appearance</p>
+            <div className="flex bg-[var(--bg)] p-1 rounded-xl border border-[var(--border)] shadow-inner">
+              <button
+                onClick={() => setCalendarMode("full")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${
+                  calendarMode === "full" 
+                  ? "bg-[var(--surface)] text-[var(--primary)] shadow-sm border border-[var(--border-strong)]" 
+                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                <div className="w-3 h-3 rounded-full bg-[var(--primary)]" />
+                Full Color
+              </button>
+              <button
+                onClick={() => setCalendarMode("border")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${
+                  calendarMode === "border" 
+                  ? "bg-[var(--surface)] text-[var(--primary)] shadow-sm border border-[var(--border-strong)]" 
+                  : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                }`}
+              >
+                <div className="w-3 h-3 rounded-full border-2 border-[var(--primary)] bg-transparent" />
+                Border Only
+              </button>
+            </div>
+            <p className="text-[10px] text-[var(--text-muted)] mt-2 ml-1">
+              Choose between solid phase colors or a minimalist outlined style.
+            </p>
           </div>
 
           {/* Partner Sharing */}

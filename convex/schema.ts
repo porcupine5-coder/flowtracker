@@ -60,6 +60,7 @@ const applicationTables = {
     partnerEmail: v.optional(v.string()), // Partner's email for sharing logs
     enablePartnerSharing: v.optional(v.boolean()),
     themeName: v.optional(v.string()), // Preferred color palette name
+    calendarMode: v.optional(v.union(v.literal("full"), v.literal("border"))), // Visual mode for calendar
   })
     .index("by_user", ["userId"]),
 

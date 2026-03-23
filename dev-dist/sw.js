@@ -81,17 +81,18 @@ define(['./workbox-b6866b34'], (function (workbox) { 'use strict';
     "url": "registerSW.js",
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
-    "url": "/offline.html",
-    "revision": "0.5cdigk4p63"
+    "url": "/index.html",
+    "revision": "0.bdklr9rhi5"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/offline.html"), {
-    allowlist: [/^\/$/]
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/index.html"), {
+    allowlist: [/^\/$/],
+    denylist: [/^\/api/, /^\/_/, /\.[a-z0-9]+(\?.*)?$/i]
   }));
-  workbox.registerRoute(/^https:\/\/.*\.(js|css|woff2?|ttf|eot|otf|png|jpg|jpeg|gif|svg|ico|webp|avif)$/i, new workbox.CacheFirst({
+  workbox.registerRoute(/^https?:\/\/.*\.(js|css|woff2?|ttf|eot|otf|png|jpg|jpeg|gif|svg|ico|webp|avif)$/i, new workbox.CacheFirst({
     "cacheName": "flowtracker-static",
     plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 60
+      maxEntries: 80
     })]
   }), 'GET');
   workbox.registerRoute(({
