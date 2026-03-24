@@ -15,6 +15,22 @@
   --border: #fed7aa;
   --border-strong: #fdba74;
   
+  /* Latte Brown specific variables (New Default Set) */
+  --color-primary: #C8A472;
+  --color-primary-hover: #A67C52;
+  --color-primary-active: #7D5A38;
+  --color-primary-light: #E2C9A0;
+  --color-primary-subtle: #F3E4CE;
+  --color-accent: #C97D72;
+  --color-accent-light: #EDCCC6;
+  --color-background: #FEFCF9;
+  --color-surface: #F5EDE2;
+  --color-border: #DDD0C0;
+  --color-text-heading: #1A0F08;
+  --color-text-body: #3D2E20;
+  --color-text-muted: #9C8470;
+  --primary-content: #ffffff;
+  
   /* Transition variables */
   --transition-speed: 0.6s;
   --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
@@ -444,7 +460,7 @@ html.dark .ai-assistant-backdrop {
   height: 52px;
   border-radius: 999px;
   background: var(--primary);
-  color: #ffffff;
+  color: var(--primary-content, #ffffff);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, background-color 0.3s ease;
   animation: aiPulse 2.5s ease-in-out infinite;
@@ -514,7 +530,7 @@ html.dark .ai-assistant-backdrop {
   height: 36px;
   border-radius: 999px;
   background: var(--primary);
-  color: #ffffff;
+  color: var(--primary-content, #ffffff);
   display: inline-flex;
   align-items: center;
   justify-content: center;

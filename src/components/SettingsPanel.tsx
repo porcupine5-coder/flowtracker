@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
@@ -59,8 +60,8 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
 
   const availableThemes = isDarkMode ? themes.dark : themes.light;
 
-  return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-[9999]">
       <div className="bg-[var(--surface)] w-full sm:rounded-2xl sm:max-w-lg shadow-2xl grid grid-rows-[auto_minmax(0,1fr)_auto] rounded-t-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4 border-b border-[var(--border)] bg-[var(--surface)] rounded-t-2xl">
           <h2 className="text-base font-semibold text-[var(--text)]">Settings</h2>
@@ -228,6 +229,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -116,7 +116,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         borderClass += " " + blobShapes[periodDay % blobShapes.length];
       } else if (isSelected) {
         bgClass = "bg-[var(--primary)] shadow-xl scale-110 z-10";
-        textClass = "text-white font-bold";
+        textClass = "text-[var(--primary-content)] font-bold";
         borderClass = "rounded-2xl border-white/20 border-2";
       } else if (phase && phaseStyles[phase]) {
         const style = phaseStyles[phase];
@@ -222,7 +222,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
           borderClass = "border-emerald-400 border-[1.5px] shadow-[0_0_8px_rgba(16,185,129,0.18)]";
         } else if (isToday) {
           bgClass = "bg-[var(--primary)]";
-          textClass = "text-white";
+          textClass = "text-[var(--primary-content)]";
           borderClass = "border-white/40 border ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0 scale-110";
         } else if (phase === "menstrual") {
           bgClass = isBorderMode ? "bg-rose-400/6" : "bg-rose-300/18 dark:bg-rose-900/28";
@@ -337,7 +337,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
               if (viewMode === "month") setSelectedDate(todayString);
             }}
             aria-label="Go to Today"
-            className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:shadow-lg rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-md"
+            className="px-5 py-2 text-xs font-bold text-[var(--primary-content)] bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] hover:shadow-lg rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 shadow-md"
           >
             Today
           </button>

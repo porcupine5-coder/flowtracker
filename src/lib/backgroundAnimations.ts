@@ -7,6 +7,7 @@ export type AnimationType =
   | "constellation"
   | "meteors"
   | "rain"
+  | "slate_sky"
   | "shooting_stars"
   | "snow"
   | "sparkles"
@@ -16,10 +17,10 @@ export type AnimationType =
 export interface AnimationConfig {
   type: AnimationType;
   colors: string[];
-  speed: number;       // 0.1 – 2.0  (multiplier)
-  count: number;       // number of elements / layers
-  scale: number;       // size multiplier
-  opacity: number;     // base opacity 0–1
+  speed: number; // 0.1 – 2.0  (multiplier)
+  count: number; // number of elements / layers
+  scale: number; // size multiplier
+  opacity: number; // base opacity 0–1
 }
 
 // Helper to hex→rgba
@@ -34,39 +35,178 @@ export { hexToRgba };
 
 // ─── Dark themes ─────────────────────────────────────────────
 const darkAnimations: Record<string, AnimationConfig> = {
-  midnight: { type: "starfield", colors: ["#6c8eff", "#a78bfa", "#f472b6"], speed: 0.4, count: 400, scale: 1.2, opacity: 0.35 },
-  obsidian: { type: "meteors", colors: ["#00d4aa", "#00a3cc", "#ff6b9d"], speed: 0.5, count: 20, scale: 1.0, opacity: 0.6 },
-  slate: { type: "rain", colors: ["#38bdf8", "#818cf8", "#fb923c"], speed: 0.3, count: 100, scale: 1.5, opacity: 0.2 },
-  carbon: { type: "beams", colors: ["#bb86fc", "#03dac6", "#cf6679"], speed: 0.25, count: 3, scale: 1.8, opacity: 0.25 },
-  ocean: { type: "underwater", colors: ["#4fc3f7", "#29b6f6", "#ffa726"], speed: 0.35, count: 4, scale: 1.0, opacity: 0.3 },
-  charcoal: { type: "circles", colors: ["#0a84ff", "#5e5ce6", "#ff375f"], speed: 0.3, count: 12, scale: 1.0, opacity: 0.15 },
-  graphite: { type: "sparkles", colors: ["#a855f7", "#ec4899", "#14b8a6"], speed: 0.4, count: 120, scale: 1.0, opacity: 0.4 },
-  void: { type: "constellation", colors: ["#58a6ff", "#79c0ff", "#f78166"], speed: 0.6, count: 80, scale: 1.0, opacity: 0.25 },
-  twilight: { type: "snow", colors: ["#9d7cd8", "#7aa2f7", "#ff9e64"], speed: 0.2, count: 150, scale: 1.0, opacity: 0.4 },
-  onyx: { type: "shooting_stars", colors: ["#00ff9f", "#00e0ff", "#ff0080"], speed: 0.5, count: 20, scale: 1.0, opacity: 0.7 },
+  midnight: {
+    type: "starfield",
+    colors: ["#6C8CFF", "#5A78E6", "#E35DA1"],
+    speed: 0.4,
+    count: 400,
+    scale: 1.2,
+    opacity: 0.35,
+  },
+  obsidian: {
+    type: "meteors",
+    colors: ["#14C9B8", "#10B3A4", "#F06292"],
+    speed: 0.5,
+    count: 20,
+    scale: 1.0,
+    opacity: 0.6,
+  },
+  slate: {
+    type: "rain",
+    colors: ["#38BDF8", "#2DA8E0", "#FB923C"],
+    speed: 0.3,
+    count: 100,
+    scale: 1.5,
+    opacity: 0.2,
+  },
+  carbon: {
+    type: "beams",
+    colors: ["#A78BFA", "#8F74E6", "#FB7185"],
+    speed: 0.25,
+    count: 3,
+    scale: 1.8,
+    opacity: 0.25,
+  },
+  ocean: {
+    type: "underwater",
+    colors: ["#4CC9F0", "#38B6DB", "#FFA62B"],
+    speed: 0.35,
+    count: 4,
+    scale: 1.0,
+    opacity: 0.3,
+  },
+  charcoal: {
+    type: "circles",
+    colors: ["#1E90FF", "#187FE0", "#FF3D5A"],
+    speed: 0.3,
+    count: 12,
+    scale: 1.0,
+    opacity: 0.15,
+  },
+  graphite: {
+    type: "sparkles",
+    colors: ["#9D4EDD", "#883CC9", "#2EC4B6"],
+    speed: 0.4,
+    count: 120,
+    scale: 1.0,
+    opacity: 0.4,
+  },
+  void: {
+    type: "constellation",
+    colors: ["#60A5FA", "#4C90E6", "#FB8C00"],
+    speed: 0.6,
+    count: 80,
+    scale: 1.0,
+    opacity: 0.25,
+  },
+  twilight: {
+    type: "snow",
+    colors: ["#8B7CF6", "#7768DE", "#F4A261"],
+    speed: 0.2,
+    count: 150,
+    scale: 1.0,
+    opacity: 0.4,
+  },
+  onyx: {
+    type: "slate_sky",
+    colors: ["#00E5A8", "#00CC95", "#FF006E", "#0E0E10"],
+    speed: 0.45,
+    count: 10,
+    scale: 1.0,
+    opacity: 0.35,
+  },
 };
 
 // ─── Light themes ────────────────────────────────────────────
 const lightAnimations: Record<string, AnimationConfig> = {
-  warmLinen: { type: "snow", colors: ["#c2410c", "#ea580c", "#0369a1"], speed: 0.2, count: 150, scale: 1.0, opacity: 0.12 },
-  rosePetal: { type: "circles", colors: ["#be123c", "#e11d48", "#6d28d9"], speed: 0.35, count: 12, scale: 1.0, opacity: 0.18 },
-  springMeadow: { type: "sparkles", colors: ["#15803d", "#16a34a", "#b45309"], speed: 0.4, count: 120, scale: 1.0, opacity: 0.3 },
-  lavenderMist: { type: "starfield", colors: ["#6d28d9", "#7c3aed", "#047857"], speed: 0.3, count: 200, scale: 1.0, opacity: 0.15 },
-  arcticBreeze: { type: "underwater", colors: ["#0369a1", "#0284c7", "#be123c"], speed: 0.3, count: 4, scale: 1.0, opacity: 0.15 },
-  sunsetGlow: { type: "meteors", colors: ["#b91c1c", "#dc2626", "#1d4ed8"], speed: 0.25, count: 20, scale: 1.0, opacity: 0.12 },
-  goldenSand: { type: "constellation", colors: ["#b45309", "#d97706", "#4338ca"], speed: 0.4, count: 60, scale: 0.8, opacity: 0.25 },
-  cloudMinimal: { type: "beams", colors: ["#1d4ed8", "#2563eb", "#a21caf"], speed: 0.2, count: 3, scale: 1.2, opacity: 0.08 },
-  slateClean: { type: "shooting_stars", colors: ["#334155", "#475569", "#0e7490"], speed: 0.25, count: 20, scale: 1.2, opacity: 0.08 },
-  mintFresh: { type: "rain", colors: ["#0f766e", "#0d9488", "#b91c1c"], speed: 0.5, count: 100, scale: 0.8, opacity: 0.15 },
+  warmLinen: {
+    type: "snow",
+    colors: ["#E07B3A", "#CC6A2F", "#2563A8"],
+    speed: 0.2,
+    count: 150,
+    scale: 1.0,
+    opacity: 0.12,
+  },
+  rosePetal: {
+    type: "circles",
+    colors: ["#C8294A", "#B0213F", "#7B5EA7"],
+    speed: 0.35,
+    count: 12,
+    scale: 1.0,
+    opacity: 0.18,
+  },
+  springMeadow: {
+    type: "sparkles",
+    colors: ["#4CAF72", "#3F9B62", "#A0632A"],
+    speed: 0.4,
+    count: 120,
+    scale: 1.0,
+    opacity: 0.3,
+  },
+  lavenderMist: {
+    type: "starfield",
+    colors: ["#9B6FBF", "#8A5DAF", "#2D6A4F"],
+    speed: 0.3,
+    count: 200,
+    scale: 1.0,
+    opacity: 0.15,
+  },
+  arcticBreeze: {
+    type: "underwater",
+    colors: ["#38A4D0", "#2F92BC", "#B8294A"],
+    speed: 0.3,
+    count: 4,
+    scale: 1.0,
+    opacity: 0.15,
+  },
+  sunsetGlow: {
+    type: "meteors",
+    colors: ["#E86A3A", "#D65A2B", "#2C5FA8"],
+    speed: 0.25,
+    count: 20,
+    scale: 1.0,
+    opacity: 0.12,
+  },
+  goldenSand: {
+    type: "constellation",
+    colors: ["#E0A830", "#CC9527", "#5B3FA8"],
+    speed: 0.4,
+    count: 60,
+    scale: 0.8,
+    opacity: 0.25,
+  },
+  latteBrown: {
+    type: "beams",
+    colors: ["#C8A472", "#A67C52", "#C97D72"],
+    speed: 0.2,
+    count: 3,
+    scale: 1.2,
+    opacity: 0.12,
+  },
+  slateClean: {
+    type: "slate_sky",
+    colors: ["#7EC8C8", "#6BB6B6", "#5B8FA8", "#F4F7F9"],
+    speed: 0.3,
+    count: 12,
+    scale: 1.0,
+    opacity: 0.2,
+  },
+  mintFresh: {
+    type: "rain",
+    colors: ["#0f766e", "#0d9488", "#b91c1c"],
+    speed: 0.5,
+    count: 100,
+    scale: 0.8,
+    opacity: 0.15,
+  },
 };
 
 export function getAnimationConfig(
   themeName: string,
-  isDark: boolean
+  isDark: boolean,
 ): AnimationConfig {
   const map = isDark ? darkAnimations : lightAnimations;
   // fallback if theme name not found
   const fallbackKey = isDark ? "twilight" : "warmLinen";
   return map[themeName] || map[fallbackKey];
 }
-

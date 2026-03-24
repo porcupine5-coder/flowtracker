@@ -43,7 +43,7 @@ export function SignInForm() {
           onClick={() => setFlow("signIn")}
           className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
             flow === "signIn"
-              ? "bg-[var(--primary)] text-white shadow-lg"
+              ? "bg-[var(--primary)] text-[var(--primary-content)] shadow-lg"
               : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
         >
@@ -53,7 +53,7 @@ export function SignInForm() {
           onClick={() => setFlow("signUp")}
           className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
             flow === "signUp"
-              ? "bg-[var(--primary)] text-white shadow-lg"
+              ? "bg-[var(--primary)] text-[var(--primary-content)] shadow-lg"
               : "text-[var(--text-muted)] hover:text-[var(--text)]"
           }`}
         >
@@ -139,7 +139,7 @@ export function SignInForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[#d97706] hover:shadow-lg text-white font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
+          className="w-full py-3 px-4 rounded-xl bg-[var(--primary)] hover:shadow-lg text-[var(--primary-content)] font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed active:scale-95"
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">
