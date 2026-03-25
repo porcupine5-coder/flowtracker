@@ -12,7 +12,8 @@ export type AnimationType =
   | "snow"
   | "sparkles"
   | "starfield"
-  | "underwater";
+  | "underwater"
+  | "animated_gradient";
 
 export interface AnimationConfig {
   type: AnimationType;
@@ -176,12 +177,12 @@ const lightAnimations: Record<string, AnimationConfig> = {
     opacity: 0.25,
   },
   latteBrown: {
-    type: "beams",
-    colors: ["#C8A472", "#A67C52", "#C97D72"],
-    speed: 0.2,
-    count: 3,
-    scale: 1.2,
-    opacity: 0.12,
+    type: "animated_gradient",
+    colors: ["#F5E9DA", "#A67B5B", "#6F4E37", "#D2B48C"],
+    speed: 1.0,
+    count: 1,
+    scale: 1.0,
+    opacity: 0.6,
   },
   slateClean: {
     type: "slate_sky",

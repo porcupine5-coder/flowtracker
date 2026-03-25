@@ -12,6 +12,7 @@ import { SnowBackground } from "./bg/SnowBackground";
 import SparklesCore from "./bg/SparklesCore";
 import { StarfieldBackground } from "./bg/StarfieldBackground";
 import { UnderwaterBackground } from "./bg/UnderwaterBackground";
+import { AnimatedGradientBackground } from "./bg/AnimatedGradientBackground";
 
 interface AltBackgroundRendererProps {
   config: AnimationConfig;
@@ -260,6 +261,8 @@ export const AltBackgroundRenderer = React.memo(function AltBackgroundRenderer({
         return <StarfieldBackground starColor={color1} count={config.count} speed={config.speed} className={bgClasses} />;
       case "underwater":
         return <UnderwaterBackground intensity={config.opacity} speed={config.speed} className={bgClasses} />;
+      case "animated_gradient":
+        return <AnimatedGradientBackground className={bgClasses} colors={config.colors} speed={11 / config.speed} />;
       default:
         return null;
     }

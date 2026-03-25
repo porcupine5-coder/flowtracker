@@ -199,7 +199,7 @@ export function Dashboard() {
             <div className="p-6">
               <div className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-5">
                 <p className="text-base md:text-lg font-semibold text-[var(--text)] leading-relaxed">
-                  Mr. Porcupine is always there for you and loves you alot . I miss you too , i know i make you made and upset you alot but i will always t=be there for you when noone is i promsie to be there in hardtimes , so don;t think twice to come to me when you need someone to talk to or when you just want to vent . I care about you so much and i want you to be happy and healthy always <span className="text-xl" aria-hidden="true">❤️</span>
+                  Mr. Porcupine is always there for you and loves you alot . I miss you too , i know i make you made and upset you alot but i will always be there for you when noone is i promsie to be there in hardtimes , so don't think twice to come to me when you need someone to talk to or when you just want to vent . I care about you so much and i want you to be happy and healthy always <span className="text-xl" aria-hidden="true">❤️</span>
                 </p>
               </div>
 

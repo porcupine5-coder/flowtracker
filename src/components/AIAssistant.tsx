@@ -384,7 +384,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
       {isOpen && (
         <div
           ref={windowRef}
-          className={`ai-assistant-window fixed bg-gradient-to-b from-[var(--primary-subtle)] to-[var(--bg)] dark:from-[var(--surface)] dark:to-[var(--bg)] border border-[var(--border-strong)] flex flex-col overflow-hidden z-[110] ${
+          className={`ai-assistant-window fixed bg-[var(--surface)] text-[var(--text)] border border-[var(--border-strong)] flex flex-col overflow-hidden z-[110] ${
             isDragging ? "dragging" : ""
           } ${isMobile ? "ai-assistant-sheet" : ""}`}
           style={{
@@ -427,7 +427,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-[var(--border)] flex-shrink-0 bg-[var(--primary)]/5 dark:bg-[var(--primary)]/10">
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-[var(--border)] flex-shrink-0 bg-[var(--surface)]">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-8 h-8 bg-white dark:bg-[var(--surface)] rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden border border-[var(--primary-light)] text-[var(--primary)]">
                 <BlueskyIcon size={20} />
@@ -638,7 +638,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
               </div>
 
               {/* Input Area */}
-              <div className="px-4 py-3 border-t border-[var(--border)] flex-shrink-0 bg-[var(--bg)]/90 backdrop-blur-md dark:bg-[var(--surface)]/90 sticky bottom-0">
+              <div className="px-4 py-3 border-t border-[var(--border)] flex-shrink-0 bg-[var(--surface)] sticky bottom-0">
                 <div className="flex gap-2 relative">
                   <textarea
                     value={input}
@@ -688,8 +688,8 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
           <div
             className={
               isCompact
-                ? "bg-gradient-to-b from-[var(--primary-subtle)] to-[var(--bg)] dark:from-[var(--surface)] dark:to-[var(--bg)] w-full sm:rounded-2xl sm:max-w-md shadow-2xl flex flex-col rounded-t-2xl overflow-hidden max-h-[85vh] pointer-events-auto"
-                : "bg-gradient-to-b from-[var(--primary-subtle)] to-[var(--bg)] dark:from-[var(--surface)] dark:to-[var(--bg)] w-full max-w-2xl h-[580px] rounded-2xl border border-[var(--border)] shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
+                ? "bg-[var(--surface)] text-[var(--text)] w-full sm:rounded-2xl sm:max-w-md shadow-2xl flex flex-col rounded-t-2xl overflow-hidden max-h-[85vh] pointer-events-auto"
+                : "bg-[var(--surface)] text-[var(--text)] w-full max-w-2xl h-[580px] rounded-2xl border border-[var(--border)] shadow-2xl flex flex-col overflow-hidden pointer-events-auto"
             }
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
