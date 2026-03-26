@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.91",
+    "@convex-dev/rate-limiter": "^0.3.2",
     "@emailjs/browser": "^4.4.1",
     "@google/generative-ai": "^0.24.1",
     "@tsparticles/engine": "^3.9.1",

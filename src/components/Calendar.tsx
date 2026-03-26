@@ -58,13 +58,13 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
     const phaseStyles: Record<string, { bg: string, border: string, text: string, ring: string }> = {
       menstrual: {
-        bg: isBorderMode ? "bg-transparent" : "bg-rose-300/20 dark:bg-rose-900/30",
+        bg: isBorderMode ? "bg-rose-300/20 dark:bg-rose-900/30" : "bg-rose-300/20 dark:bg-rose-900/30",
         border: isBorderMode ? "border-rose-400 border-2" : "border-rose-300 dark:border-rose-700",
         text: "text-rose-700 dark:text-rose-300 font-bold",
         ring: isBorderMode ? "ring-rose-400/10" : ""
       },
       follicular: {
-        bg: isBorderMode ? "bg-transparent" : "bg-amber-300/20 dark:bg-amber-900/25",
+        bg: isBorderMode ? "bg-amber-300/20 dark:bg-amber-900/25" : "bg-amber-300/20 dark:bg-amber-900/25",
         border: isBorderMode ? "border-amber-400 border-2 shadow-[0_0_8px_rgba(217,119,6,0.14)]" : "border-amber-300 dark:border-amber-700",
         text: "text-amber-700 dark:text-amber-300 font-bold",
         ring: isBorderMode ? "ring-amber-400/10" : ""
@@ -76,7 +76,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         ring: "ring-emerald-400/20 ring-2"
       },
       luteal: {
-        bg: isBorderMode ? "bg-transparent" : "bg-violet-300/15 dark:bg-violet-900/28",
+        bg: isBorderMode ? "bg-violet-300/15 dark:bg-violet-900/28" : "bg-violet-300/15 dark:bg-violet-900/28",
         border: isBorderMode ? "border-violet-400 border-2" : "border-violet-300 dark:border-violet-700",
         text: "text-violet-700 dark:text-violet-300 font-bold",
         ring: isBorderMode ? "ring-violet-400/10" : ""
@@ -134,7 +134,6 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
       if (isFuture && !isToday && !isSelected && !isPeriod && phase !== "ovulation") {
         textClass = "text-[var(--text-muted)] p-[2px]";
-        if (isBorderMode) bgClass = "bg-transparent";
       }
 
       days.push(
@@ -229,11 +228,11 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
           textClass = "text-rose-700 dark:text-rose-300 font-bold";
           borderClass = "border-rose-400 border-[1.5px]";
         } else if (phase === "follicular") {
-          bgClass = isBorderMode ? "bg-transparent" : "bg-amber-300/16 dark:bg-amber-900/24";
+          bgClass = isBorderMode ? "bg-amber-300/20 dark:bg-amber-900/28" : "bg-amber-300/16 dark:bg-amber-900/24";
           textClass = "text-amber-700 dark:text-amber-300 font-bold";
           borderClass = "border-amber-400 border-[1.5px]";
         } else if (phase === "luteal") {
-          bgClass = isBorderMode ? "bg-transparent" : "bg-violet-300/14 dark:bg-violet-900/24";
+          bgClass = isBorderMode ? "bg-violet-300/20 dark:bg-violet-900/28" : "bg-violet-300/14 dark:bg-violet-900/24";
           textClass = "text-violet-700 dark:text-violet-300";
           borderClass = "border-violet-400 border-[1.5px]";
         }
@@ -361,7 +360,7 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
       </div>
 
       {/* Main Content Area */}
-      <div className="relative overflow-hidden min-h-[300px]">
+      <div className="relative overflow-visible min-h-[300px] px-1 py-1">
         {viewMode === "month" ? renderMonthlyView() : renderYearlyView()}
       </div>
 
@@ -370,19 +369,19 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-4 px-1">Phase Legend</h4>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-rose-400/70 shadow-[0_0_8px_rgba(244,63,94,0.18)] border border-rose-400 transition-transform group-hover:scale-110" />
+            <div className="w-4 h-4 rounded-lg bg-rose-300 border border-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.18)] transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Menstrual</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-amber-300/40 border-2 border-amber-400 shadow-[0_0_7px_rgba(217,119,6,0.14)] transition-transform group-hover:scale-110" />
+            <div className="w-4 h-4 rounded-lg bg-amber-200 border-2 border-amber-400 shadow-[0_0_7px_rgba(217,119,6,0.14)] transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Follicular</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-emerald-300/45 border-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.16)] ring-1 ring-emerald-400/35 transition-transform group-hover:scale-110" />
+            <div className="w-4 h-4 rounded-lg bg-emerald-200 border-2 border-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.16)] ring-1 ring-emerald-400/35 transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Ovulation</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-4 h-4 rounded-lg bg-violet-300/35 border-2 border-violet-400 transition-transform group-hover:scale-110" />
+            <div className="w-4 h-4 rounded-lg bg-violet-200 border-2 border-violet-400 transition-transform group-hover:scale-110" />
             <span className="text-[11px] font-bold text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">Luteal</span>
           </div>
           <div className="flex items-center gap-2 group cursor-default">

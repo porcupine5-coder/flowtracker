@@ -2,6 +2,7 @@ import { query, mutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
+import { rateLimiter } from "./rateLimiter";
 
 // Helper function to calculate phase
 function calculatePhase(
@@ -68,6 +69,12 @@ export const updateUserSettings = mutation({
     calendarMode: v.optional(v.union(v.literal("full"), v.literal("border"))),
   },
   handler: async (ctx, args) => {
+    const { ok, retryAfter } = await rateLimiter.limit(ctx, "freeTrialSignUp");
+    if (!ok) {
+      const retryIn = typeof retryAfter === "number" ? Math.ceil(retryAfter) : 60;
+      throw new Error(`Too many setup attempts. Please retry in about ${retryIn} seconds.`);
+    }
+
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 

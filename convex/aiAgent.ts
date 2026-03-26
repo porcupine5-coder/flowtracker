@@ -2,6 +2,7 @@ import { action, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { rateLimiter } from "./rateLimiter";
 
 const GEMINI_API_KEY =process.env.GEMINI_API_KEY;
 const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
@@ -16,6 +17,15 @@ export const askAgent = action({
     isShreeya: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<string> => {
+    const limiterKey = args.userEmail.trim().toLowerCase();
+    const { ok, retryAfter } = await rateLimiter.limit(ctx, "sendMessage", {
+      key: limiterKey,
+    });
+    if (!ok) {
+      const retryIn = typeof retryAfter === "number" ? Math.ceil(retryAfter) : 60;
+      return `Rate limit exceeded. Please try again in about ${retryIn} seconds.`;
+    }
+
     let systemPrompt =
       args.systemPrompt ||
       "You are a helpful, knowledgeable wellness assistant specializing in menstrual health, cycle tracking, and general wellbeing. Be concise, empathetic, and evidence-based. Provide practical advice and always recommend consulting a healthcare provider for medical concerns.";
