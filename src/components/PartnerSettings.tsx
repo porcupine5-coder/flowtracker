@@ -12,10 +12,10 @@ export function PartnerSettings() {
   const [enableSharing, setEnableSharing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const isShreeya = loggedInUser?.email === "metheotakj@gmail.com";
+  const isPenguine = loggedInUser?.email === "metheotakj@gmail.com";
 
-  // Don't show partner settings for Shreeya
-  if (isShreeya) return null;
+  // Don't show partner settings for Penguine
+  if (isPenguine) return null;
 
   const handleSave = async () => {
     try {

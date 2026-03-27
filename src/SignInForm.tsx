@@ -2,7 +2,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { HoneycombLoader } from "./components/HoneycombLoader";
+import { RingLoader } from "./components/RingLoader";
 
 export function SignInForm() {
   const { signIn } = useAuthActions();
@@ -143,7 +143,7 @@ export function SignInForm() {
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">
-              <HoneycombLoader size={16} label="Loading" />
+              <RingLoader size={16} label="Loading" />
               {flow === "signIn" ? "Signing in..." : "Creating account..."}
             </span>
           ) : (

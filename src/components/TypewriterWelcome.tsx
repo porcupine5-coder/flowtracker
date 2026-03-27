@@ -14,7 +14,7 @@ const SESSION_KEY_PREFIX = "flow:typewriter-welcome:v2:done:";
 function isSpecialUser(userEmail?: string | null, userName?: string | null): boolean {
   const normalizedEmail = (userEmail || "").trim().toLowerCase();
   const normalizedName = (userName || "").trim().toLowerCase();
-  return normalizedEmail === SPECIAL_EMAIL || normalizedName === "shreeya";
+  return normalizedEmail === SPECIAL_EMAIL || normalizedName === "Penguine";
 }
 
 function prefersReducedMotion(): boolean {

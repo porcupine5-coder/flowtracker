@@ -8,7 +8,7 @@ import { PredictionCard } from "./PredictionCard";
 import { AIAssistant } from "./AIAssistant";
 import { SettingsPanel } from "./SettingsPanel";
 import { DailyCare } from "./DailyCare";
-import { HoneycombLoader } from "./HoneycombLoader";
+import { RingLoader } from "./RingLoader";
 import { FeedbackForms } from "./FeedbackForms";
 import { TypewriterWelcome } from "./TypewriterWelcome";
 
@@ -62,7 +62,7 @@ export function Dashboard() {
     return (
       <div className="flex items-center justify-center min-h-[400px] w-full bg-[var(--bg)]/50 backdrop-blur-sm rounded-3xl border border-[var(--border)]">
         <div className="flex flex-col items-center gap-4">
-          <HoneycombLoader size={40} />
+          <RingLoader size={40} />
           <p className="text-sm font-medium text-[var(--text-muted)]">Synchronizing cycle data...</p>
         </div>
       </div>

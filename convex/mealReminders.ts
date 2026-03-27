@@ -31,25 +31,25 @@ export const sendMealReminder = internalAction({
     // Lunch reminders
     else if (!isWeekend && hour === 12 && minute === 30) {
       mealType = "Lunch";
-      message = "Lunch time, Ms. Shreeya! 🌷 Take a break and fuel your body with something delicious and healthy!";
+      message = "Lunch time, Ms. Penguine! 🌷 Take a break and fuel your body with something delicious and healthy!";
       shouldSend = true;
     } else if (isWeekend && hour === 15 && minute === 0) {
       mealType = "Lunch";
-      message = "Afternoon meal time, Ms. Shreeya! 🌹 Perfect time for a lovely weekend lunch!";
+      message = "Afternoon meal time, Ms. Penguine! 🌹 Perfect time for a lovely weekend lunch!";
       shouldSend = true;
     }
     
     // Afternoon snack (weekdays only)
     else if (!isWeekend && hour === 16 && minute === 45) {
       mealType = "Afternoon Snack";
-      message = "Afternoon snack time, Ms. Shreeya! 🌸 A little something to keep your energy up!";
+      message = "Afternoon snack time, Ms. Penguine! 🌸 A little something to keep your energy up!";
       shouldSend = true;
     }
     
     // Dinner reminders (every day)
     else if (hour === 19 && minute === 0) {
       mealType = "Dinner";
-      message = "Dinner time, Ms. Shreeya! 🌺 Time for a wonderful evening meal to end your day beautifully!";
+      message = "Dinner time, Ms. Penguine! 🌺 Time for a wonderful evening meal to end your day beautifully!";
       shouldSend = true;
     }
 
@@ -85,7 +85,7 @@ export const sendMealReminder = internalAction({
               💝 Sent with care from your FlowTracker AI Assistant 💝
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-              Taking care of Ms. Shreeya's wellness journey
+              Taking care of Ms. Penguine's wellness journey
             </p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export const sendMealReminder = internalAction({
       await resend.emails.send({
         from: "FlowTracker Care <care@flowtracker.app>",
         to: "ytsshrts@gmail.com",
-        subject: `🌸 ${mealType} Reminder for Ms. Shreeya`,
+        subject: `🌸 ${mealType} Reminder for Ms. Penguine`,
         html: emailContent,
       });
     } catch (error) {

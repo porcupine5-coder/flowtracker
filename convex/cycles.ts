@@ -423,17 +423,17 @@ export const getRecentLogsForAI = internalQuery({
     startDate: v.string(),
   },
   handler: async (ctx, args) => {
-    // This is an internal query, so we need to find Shreeya's user ID
-    const shreeyaUser = await ctx.db
+    // This is an internal query, so we need to find Penguine's user ID
+    const PenguineUser = await ctx.db
       .query("users")
       .withIndex("email", (q) => q.eq("email", "metheotakj@gmail.com"))
       .unique();
     
-    if (!shreeyaUser) return [];
+    if (!PenguineUser) return [];
 
     return await ctx.db
       .query("dailyLogs")
-      .withIndex("by_user", (q) => q.eq("userId", shreeyaUser._id))
+      .withIndex("by_user", (q) => q.eq("userId", PenguineUser._id))
       .filter((q) => q.gte(q.field("date"), args.startDate))
       .order("desc")
       .take(7); // Last 7 days
@@ -697,7 +697,7 @@ export const getSymptomSuggestions = query({
 
     const severity = args.severity || "mild";
     const suggestions = symptomSuggestions[args.symptom]?.[severity] || [];
-    
+
     return {
       symptom: args.symptom,
       severity,
@@ -710,6 +710,75 @@ export const getSymptomSuggestions = query({
         "Practice stress management techniques",
         "Consult healthcare providers for persistent or severe symptoms"
       ]
+    };
+  },
+});
+
+/**
+ * Permanently deletes all logs for the authenticated user.
+ * This includes dailyLogs, recommendationInteractions, and cycles.
+ * Also resets lastPeriodStart and periodLength in userSettings.
+ * Updates the logsClearedAt timestamp in userSettings.
+ */
+export const clearAllLogs = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Get user settings to update the logsClearedAt timestamp
+    const settings = await ctx.db
+      .query("userSettings")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!settings) {
+      throw new Error("User settings not found");
+    }
+
+    // Delete all daily logs for this user
+    const dailyLogs = await ctx.db
+      .query("dailyLogs")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    for (const log of dailyLogs) {
+      await ctx.db.delete(log._id);
+    }
+
+    // Delete all recommendation interactions for this user
+    const recommendationInteractions = await ctx.db
+      .query("recommendationInteractions")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    for (const interaction of recommendationInteractions) {
+      await ctx.db.delete(interaction._id);
+    }
+
+    // Delete all cycles for this user
+    const cycles = await ctx.db
+      .query("cycles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    for (const cycle of cycles) {
+      await ctx.db.delete(cycle._id);
+    }
+
+    // Update user settings:
+    // - Reset lastPeriodStart to clear phase calculations
+    // - Update logsClearedAt timestamp
+    await ctx.db.patch(settings._id, {
+      lastPeriodStart: undefined,
+      logsClearedAt: new Date().toISOString(),
+    });
+
+    return {
+      deletedLogsCount: dailyLogs.length,
+      deletedInteractionsCount: recommendationInteractions.length,
+      deletedCyclesCount: cycles.length,
+      clearedAt: new Date().toISOString(),
     };
   },
 });

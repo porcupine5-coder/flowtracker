@@ -61,6 +61,7 @@ const applicationTables = {
     enablePartnerSharing: v.optional(v.boolean()),
     themeName: v.optional(v.string()), // Preferred color palette name
     calendarMode: v.optional(v.union(v.literal("full"), v.literal("border"))), // Visual mode for calendar
+    logsClearedAt: v.optional(v.string()), // ISO date string of last log clearance
   })
     .index("by_user", ["userId"]),
 

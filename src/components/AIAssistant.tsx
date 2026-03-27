@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import BlueskyIcon from "./BlueskyIcon";
 
 interface AIAssistantProps {
-  isShreeya: boolean;
+  isPenguine: boolean;
 }
 
 interface Message {
@@ -35,7 +35,7 @@ const DEFAULT_BOT: BotConfig = {
   accentColor: "amber",
 };
 
-export function AIAssistant({ isShreeya }: AIAssistantProps) {
+export function AIAssistant({ isPenguine }: AIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
@@ -313,7 +313,7 @@ export function AIAssistant({ isShreeya }: AIAssistantProps) {
         userEmail: loggedInUser?.email || "",
         botName: botConfig.name,
         systemPrompt: botConfig.systemPrompt,
-        isShreeya,
+        isPenguine,
       });
       setMessages((prev) => [
         ...prev,

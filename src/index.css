@@ -285,136 +285,227 @@ html.reduce-motion .toggle-icon {
   animation: shimmer 1.5s infinite;
 }
 
-/* ── Honeycomb Loader (lightweight + theme-aware) ───────────────── */
-@keyframes honeycomb {
-  0%,
-  20%,
-  80%,
-  100% {
-    opacity: 0;
-    transform: translate3d(0, calc(var(--hc-size) * 0.42), 0) scale(0.85);
+/* ── Loader rings (from user-supplied Uiverse animation) ───────────────── */
+.pl {
+  width: 100%;
+  height: 100%;
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.pl__ring {
+  animation: ringA 2s linear infinite;
+  stroke: currentColor;
+}
+
+.pl__ring--a {
+  stroke: currentColor;
+}
+
+.pl__ring--b {
+  animation-name: ringB;
+  stroke: rgba(255, 255, 255, 0.8);
+}
+
+.pl__ring--c {
+  animation-name: ringC;
+  stroke: rgba(255, 255, 255, 0.65);
+}
+
+.pl__ring--d {
+  animation-name: ringD;
+  stroke: currentColor;
+}
+
+@keyframes ringA {
+  from, 4% {
+    stroke-dasharray: 0 660;
+    stroke-width: 20;
+    stroke-dashoffset: -330;
   }
 
-  30%,
+  12% {
+    stroke-dasharray: 60 600;
+    stroke-width: 30;
+    stroke-dashoffset: -335;
+  }
+
+  32% {
+    stroke-dasharray: 60 600;
+    stroke-width: 30;
+    stroke-dashoffset: -595;
+  }
+
+  40%, 54% {
+    stroke-dasharray: 0 660;
+    stroke-width: 20;
+    stroke-dashoffset: -660;
+  }
+
+  62% {
+    stroke-dasharray: 60 600;
+    stroke-width: 30;
+    stroke-dashoffset: -665;
+  }
+
+  82% {
+    stroke-dasharray: 60 600;
+    stroke-width: 30;
+    stroke-dashoffset: -925;
+  }
+
+  90%, to {
+    stroke-dasharray: 0 660;
+    stroke-width: 20;
+    stroke-dashoffset: -990;
+  }
+}
+
+@keyframes ringB {
+  from, 12% {
+    stroke-dasharray: 0 220;
+    stroke-width: 20;
+    stroke-dashoffset: -110;
+  }
+
+  20% {
+    stroke-dasharray: 20 200;
+    stroke-width: 30;
+    stroke-dashoffset: -115;
+  }
+
+  40% {
+    stroke-dasharray: 20 200;
+    stroke-width: 30;
+    stroke-dashoffset: -195;
+  }
+
+  48%, 62% {
+    stroke-dasharray: 0 220;
+    stroke-width: 20;
+    stroke-dashoffset: -220;
+  }
+
   70% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    stroke-dasharray: 20 200;
+    stroke-width: 30;
+    stroke-dashoffset: -225;
+  }
+
+  90% {
+    stroke-dasharray: 20 200;
+    stroke-width: 30;
+    stroke-dashoffset: -305;
+  }
+
+  98%, to {
+    stroke-dasharray: 0 220;
+    stroke-width: 20;
+    stroke-dashoffset: -330;
   }
 }
 
-.honeycomb {
-  /* Default size; override via style={{ ["--hc-size" as any]: "32px" }} */
-  --hc-size: 24px;
-  --hc-half: calc(var(--hc-size) / 2);
-  --hc-quarter: calc(var(--hc-size) / 4);
-  --hc-x: calc(var(--hc-size) * 1.1666667);
-  --hc-x-small: calc(var(--hc-size) * 0.5833333);
-  --hc-y: calc(var(--hc-size) * 0.9166667);
+@keyframes ringC {
+  from {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: 0;
+  }
 
-  height: var(--hc-size);
-  width: var(--hc-size);
-  position: relative;
-  display: inline-block;
-  color: var(--primary);
+  8% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -5;
+  }
 
-  /* Avoid the global `* { transition: opacity ... }` from interfering */
-  transition: none !important;
-  contain: layout paint;
+  28% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -175;
+  }
+
+  36%, 58% {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: -220;
+  }
+
+  66% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -225;
+  }
+
+  86% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -395;
+  }
+
+  94%, to {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: -440;
+  }
 }
 
-.honeycomb,
-.honeycomb * {
-  transition: none !important;
+@keyframes ringD {
+  from, 8% {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: 0;
+  }
+
+  16% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -5;
+  }
+
+  36% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -175;
+  }
+
+  44%, 50% {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: -220;
+  }
+
+  58% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -225;
+  }
+
+  78% {
+    stroke-dasharray: 40 400;
+    stroke-width: 30;
+    stroke-dashoffset: -395;
+  }
+
+  86%, to {
+    stroke-dasharray: 0 440;
+    stroke-width: 20;
+    stroke-dashoffset: -440;
+  }
 }
 
-.honeycomb div {
-  animation: honeycomb 1.35s infinite ease-in-out;
-  animation-fill-mode: backwards;
-
-  background: currentColor;
-  height: var(--hc-half);
-  margin-top: var(--hc-quarter);
-  position: absolute;
-  width: var(--hc-size);
-
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-.honeycomb div:after,
-.honeycomb div:before {
-  content: "";
-  border-left: var(--hc-half) solid transparent;
-  border-right: var(--hc-half) solid transparent;
-  position: absolute;
-  left: 0;
-  right: 0;
-}
-
-.honeycomb div:after {
-  top: calc(var(--hc-quarter) * -1);
-  border-bottom: var(--hc-quarter) solid currentColor;
-}
-
-.honeycomb div:before {
-  bottom: calc(var(--hc-quarter) * -1);
-  border-top: var(--hc-quarter) solid currentColor;
-}
-
-.honeycomb div:nth-child(1) {
-  animation-delay: 0s;
-  left: calc(var(--hc-x) * -1);
-  top: 0;
-}
-
-.honeycomb div:nth-child(2) {
-  animation-delay: 0.1s;
-  left: calc(var(--hc-x-small) * -1);
-  top: var(--hc-y);
-}
-
-.honeycomb div:nth-child(3) {
-  animation-delay: 0.2s;
-  left: var(--hc-x-small);
-  top: var(--hc-y);
-}
-
-.honeycomb div:nth-child(4) {
-  animation-delay: 0.3s;
-  left: var(--hc-x);
-  top: 0;
-}
-
-.honeycomb div:nth-child(5) {
-  animation-delay: 0.4s;
-  left: var(--hc-x-small);
-  top: calc(var(--hc-y) * -1);
-}
-
-.honeycomb div:nth-child(6) {
-  animation-delay: 0.5s;
-  left: calc(var(--hc-x-small) * -1);
-  top: calc(var(--hc-y) * -1);
-}
-
-.honeycomb div:nth-child(7) {
-  animation-delay: 0.6s;
-  left: 0;
-  top: 0;
-}
-
-html.reduce-motion .honeycomb div {
+html.reduce-motion .pl,
+html.reduce-motion .pl * {
   animation: none !important;
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .honeycomb div {
+  .pl,
+  .pl * {
     animation: none !important;
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: none;
   }
 }
 

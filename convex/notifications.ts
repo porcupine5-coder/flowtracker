@@ -68,17 +68,17 @@ export const sendLogNotification = internalAction({
       luteal: "🌙"
     };
 
-    const isShreeya = args.userEmail === "metheotakj@gmail.com";
-    const recipientEmail = isShreeya ? "ytsshrts@gmail.com" : args.userEmail;
+    const isPenguine = args.userEmail === "metheotakj@gmail.com";
+    const recipientEmail = isPenguine ? "ytsshrts@gmail.com" : args.userEmail;
 
     let emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); border-radius: 15px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #be185d; margin: 0; font-size: 28px;">🌸 FlowTracker Update 🌸</h1>
           <h2 style="color: #7c3aed; margin: 10px 0; font-size: 20px;">
-            ${isShreeya ? "Ms. Shreeya's Daily Log" : "Daily Log Update"}
+            ${isPenguine ? "Ms. Penguine's Daily Log" : "Daily Log Update"}
           </h2>
-          ${isShreeya ? '<p style="color: #ec4899; font-size: 14px; margin: 5px 0;">💕 I love you sleepyhead! 💕</p>' : ''}
+          ${isPenguine ? '<p style="color: #ec4899; font-size: 14px; margin: 5px 0;">💕 I love you sleepyhead! 💕</p>' : ''}
         </div>
         
         <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -162,7 +162,7 @@ export const sendLogNotification = internalAction({
               💝 Sent with care from FlowTracker 💝
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-              ${isShreeya ? "Tracking Ms. Shreeya's wellness journey with love" : "Tracking your wellness journey"}
+              ${isPenguine ? "Tracking Ms. Penguine's wellness journey with love" : "Tracking your wellness journey"}
             </p>
           </div>
         </div>
@@ -174,12 +174,12 @@ export const sendLogNotification = internalAction({
       await resend.emails.send({
         from: "FlowTracker <notifications@flowtracker.app>",
         to: recipientEmail,
-        subject: `🌸 ${isShreeya ? "Ms. Shreeya's" : "Your"} Daily Log - ${formatDate(args.date)}`,
+        subject: `🌸 ${isPenguine ? "Ms. Penguine's" : "Your"} Daily Log - ${formatDate(args.date)}`,
         html: emailContent,
       });
 
       // Send to partner if enabled and email provided
-      if (args.partnerEmail && !isShreeya) {
+      if (args.partnerEmail && !isPenguine) {
         await resend.emails.send({
           from: "FlowTracker <notifications@flowtracker.app>",
           to: args.partnerEmail,

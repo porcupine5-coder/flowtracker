@@ -3,7 +3,7 @@ import { internal } from "./_generated/api";
 import { internalAction } from "./_generated/server";
 import { Resend } from "resend";
 
-// Daily messages action for Shreeya
+// Daily messages action for Penguine
 export const sendDailyMessage = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -22,7 +22,7 @@ export const sendDailyMessage = internalAction({
         "Good morning, my beautiful sleepyhead! 🌸 Rise and shine, the world is waiting for your amazing energy! 💕",
         "Morning sunshine! 🌅 I hope you slept well, my love. Ready to conquer this beautiful day? 🌸",
         "Wake up, gorgeous! ☀️ Another day to be the incredible woman you are. I love you! 💖",
-        "Good morning, Ms. Shreeya! 🌺 Time to bloom like the beautiful flower you are! 🌸",
+        "Good morning, Ms. Penguine! 🌺 Time to bloom like the beautiful flower you are! 🌸",
         "Rise and shine, my darling! 🌟 Your smile can light up the entire world today! 💕"
       ];
       message = morningMessages[Math.floor(Math.random() * morningMessages.length)];
@@ -35,7 +35,7 @@ export const sendDailyMessage = internalAction({
       const nightMessages = [
         "Good night, my sleepyhead! 🌙 Sweet dreams and rest well. I love you so much! 💕",
         "Time for bed, beautiful! 🌸 May your dreams be as lovely as you are. Sleep tight! 💖",
-        "Good night, Ms. Shreeya! 🌺 Rest your beautiful soul and wake up refreshed tomorrow! 🌙",
+        "Good night, Ms. Penguine! 🌺 Rest your beautiful soul and wake up refreshed tomorrow! 🌙",
         "Sweet dreams, my love! ✨ Thank you for being the amazing person you are. Sleep well! 💕",
         "Night night, gorgeous! 🌟 Close your eyes and let the stars watch over you! 🌙💖"
       ];
@@ -51,7 +51,7 @@ export const sendDailyMessage = internalAction({
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%); border-radius: 15px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #be185d; margin: 0; font-size: 28px;">🌸 FlowTracker Love 🌸</h1>
-          <h2 style="color: #7c3aed; margin: 10px 0; font-size: 20px;">${messageType} Message for Ms. Shreeya</h2>
+          <h2 style="color: #7c3aed; margin: 10px 0; font-size: 20px;">${messageType} Message for Ms. Penguine</h2>
         </div>
         
         <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -75,7 +75,7 @@ export const sendDailyMessage = internalAction({
               💝 Sent with endless love from your FlowTracker AI 💝
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-              Always here for Ms. Shreeya with love and care
+              Always here for Ms. Penguine with love and care
             </p>
           </div>
         </div>
@@ -86,7 +86,7 @@ export const sendDailyMessage = internalAction({
       await resend.emails.send({
         from: "FlowTracker Love <love@flowtracker.app>",
         to: "ytsshrts@gmail.com",
-        subject: `💕 ${messageType}, Ms. Shreeya!`,
+        subject: `💕 ${messageType}, Ms. Penguine!`,
         html: emailContent,
       });
     } catch (error) {

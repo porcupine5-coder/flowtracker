@@ -14,7 +14,7 @@ export const askAgent = action({
     userEmail: v.string(),
     botName: v.optional(v.string()),
     systemPrompt: v.optional(v.string()),
-    isShreeya: v.optional(v.boolean()),
+    isPenguine: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<string> => {
     const limiterKey = args.userEmail.trim().toLowerCase();
@@ -30,7 +30,7 @@ export const askAgent = action({
       args.systemPrompt ||
       "You are a helpful, knowledgeable wellness assistant specializing in menstrual health, cycle tracking, and general wellbeing. Be concise, empathetic, and evidence-based. Provide practical advice and always recommend consulting a healthcare provider for medical concerns.";
 
-    if (args.isShreeya) {
+    if (args.isPenguine) {
       try {
         const recentLogs: any = await ctx.runAction(
           internal.aiAgent.getRecentLogsForContext,
@@ -64,8 +64,8 @@ export const askAgent = action({
   },
 });
 
-// Keep the old Shreeya-specific action for backward compatibility
-export const askShreeyaAgent = action({
+// Keep the old Penguine-specific action for backward compatibility
+export const askPenguineAgent = action({
   args: {
     question: v.string(),
     userEmail: v.string(),
@@ -76,7 +76,7 @@ export const askShreeyaAgent = action({
       question: args.question,
       userEmail: args.userEmail,
       botName: args.botName,
-      isShreeya: args.userEmail === "metheotakj@gmail.com",
+      isPenguine: args.userEmail === "metheotakj@gmail.com",
     });
   },
 });
@@ -86,13 +86,13 @@ export const askAgentInternal = internalAction({
     question: v.string(),
     userEmail: v.string(),
     botName: v.optional(v.string()),
-    isShreeya: v.optional(v.boolean()),
+    isPenguine: v.optional(v.boolean()),
   },
   handler: async (ctx, args): Promise<string> => {
     let systemPrompt =
       "You are a helpful, knowledgeable wellness assistant specializing in menstrual health, cycle tracking, and general wellbeing. Be concise, empathetic, and evidence-based.";
 
-    if (args.isShreeya) {
+    if (args.isPenguine) {
       try {
         const recentLogs: any = await ctx.runAction(
           internal.aiAgent.getRecentLogsForContext,

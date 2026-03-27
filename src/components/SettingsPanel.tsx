@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { themes, applyTheme } from "../lib/theme";
 import { useTheme } from "./useTheme";
+import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 
 interface SettingsPanelProps {
   settings: any;
@@ -13,6 +14,7 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
   const updateUserSettings = useMutation(api.cycles.updateUserSettings);
+  const clearAllLogs = useMutation(api.cycles.clearAllLogs);
   const { isDarkMode } = useTheme();
 
   const [cycleLength, setCycleLength] = useState(settings.averageCycleLength || 28);
@@ -22,6 +24,14 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
   const [selectedTheme, setSelectedTheme] = useState(settings.themeName || "");
   const [calendarMode, setCalendarMode] = useState<"full" | "border">(settings.calendarMode || "full");
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Logs management state
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeletingLogs, setIsDeletingLogs] = useState(false);
+  
+  // Fetch fresh user settings to get logsClearedAt
+  const freshSettings = useQuery(api.cycles.getUserSettings);
+  const logsClearedAt = freshSettings?.logsClearedAt;
 
   // Apply preview theme immediately
   useEffect(() => {
@@ -56,6 +66,33 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleClearLogs = async () => {
+    setIsDeletingLogs(true);
+    try {
+      const result = await clearAllLogs();
+      toast.success(
+        `All logs cleared successfully at ${new Date(result.clearedAt).toLocaleString()}`,
+        { duration: 4000 }
+      );
+      setShowDeleteDialog(false);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to clear logs";
+      toast.error(errorMessage, { duration: 5000 });
+    } finally {
+      setIsDeletingLogs(false);
+    }
+  };
+
+  const formatClearedAtDate = (isoString: string) => {
+    return new Date(isoString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
   };
 
   const availableThemes = isDarkMode ? themes.dark : themes.light;
@@ -159,7 +196,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
                 }`}
               >
                 <div className="w-3 h-3 rounded-full bg-[var(--primary)]" />
-                Full Color
+                Full Colored
               </button>
               <button
                 onClick={() => setCalendarMode("border")}
@@ -170,7 +207,7 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
                 }`}
               >
                 <div className="w-3 h-3 rounded-full border-2 border-[var(--primary)] bg-transparent" />
-                Border Only
+                Borders Only
               </button>
             </div>
             <p className="text-[10px] text-[var(--text-muted)] mt-2 ml-1">
@@ -210,6 +247,39 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
               )}
             </div>
           </div>
+
+          {/* Logs Management */}
+          <div>
+            <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-3">
+              Logs Management
+            </p>
+            <div className="space-y-3">
+              <div className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-3">
+                <p className="text-xs text-[var(--text)] leading-relaxed">
+                  Permanently delete all your tracking data including daily logs, cycle history, and recommendations.
+                </p>
+                {logsClearedAt && (
+                  <p className="text-[10px] text-[var(--text-muted)] mt-2">
+                    Last cleared: <span className="font-medium">{formatClearedAtDate(logsClearedAt)}</span>
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setShowDeleteDialog(true)}
+                className="w-full py-2.5 border border-red-500/50 text-red-500 rounded-xl text-sm font-medium hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+                aria-label="Clear all logs"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Clear All Logs
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="p-4 sm:p-5 border-t border-[var(--border)] bg-[var(--surface)] rounded-b-2xl">
@@ -229,6 +299,17 @@ export function SettingsPanel({ settings, onClose }: SettingsPanelProps) {
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setIsDeletingLogs(false);
+        }}
+        onConfirm={handleClearLogs}
+        isDeleting={isDeletingLogs}
+      />
     </div>,
     document.body
   );

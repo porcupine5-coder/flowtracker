@@ -58,25 +58,25 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
     const phaseStyles: Record<string, { bg: string, border: string, text: string, ring: string }> = {
       menstrual: {
-        bg: isBorderMode ? "bg-rose-300/20 dark:bg-rose-900/30" : "bg-rose-300/20 dark:bg-rose-900/30",
+        bg: isBorderMode ? "bg-transparent" : "bg-rose-300/20 dark:bg-rose-900/30",
         border: isBorderMode ? "border-rose-400 border-2" : "border-rose-300 dark:border-rose-700",
         text: "text-rose-700 dark:text-rose-300 font-bold",
         ring: isBorderMode ? "ring-rose-400/10" : ""
       },
       follicular: {
-        bg: isBorderMode ? "bg-amber-300/20 dark:bg-amber-900/25" : "bg-amber-300/20 dark:bg-amber-900/25",
+        bg: isBorderMode ? "bg-transparent" : "bg-amber-300/20 dark:bg-amber-900/25",
         border: isBorderMode ? "border-amber-400 border-2 shadow-[0_0_8px_rgba(217,119,6,0.14)]" : "border-amber-300 dark:border-amber-700",
         text: "text-amber-700 dark:text-amber-300 font-bold",
         ring: isBorderMode ? "ring-amber-400/10" : ""
       },
       ovulation: {
-        bg: isBorderMode ? "bg-transparent shadow-[inset_0_0_12px_rgba(16,185,129,0.08)]" : "bg-emerald-300/22 dark:bg-emerald-900/30",
+        bg: isBorderMode ? "bg-transparent" : "bg-emerald-300/22 dark:bg-emerald-900/30",
         border: "border-emerald-400 border-2 shadow-[0_0_10px_rgba(16,185,129,0.18)]",
         text: "text-emerald-700 dark:text-emerald-300 font-extrabold",
         ring: "ring-emerald-400/20 ring-2"
       },
       luteal: {
-        bg: isBorderMode ? "bg-violet-300/15 dark:bg-violet-900/28" : "bg-violet-300/15 dark:bg-violet-900/28",
+        bg: isBorderMode ? "bg-transparent" : "bg-violet-300/15 dark:bg-violet-900/28",
         border: isBorderMode ? "border-violet-400 border-2" : "border-violet-300 dark:border-violet-700",
         text: "text-violet-700 dark:text-violet-300 font-bold",
         ring: isBorderMode ? "ring-violet-400/10" : ""
@@ -102,12 +102,14 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
 
         if (isPeriod) {
           if (log?.flow && log.flow !== "none") {
-            bgClass = "bg-gradient-to-br from-rose-600 to-rose-500 shadow-lg scale-105 z-10";
-            textClass = "text-white font-black";
-            borderClass = "border-rose-400 border-2";
+            bgClass = isBorderMode
+              ? "bg-transparent shadow-lg scale-105 z-10"
+              : "bg-gradient-to-br from-rose-600 to-rose-500 shadow-lg scale-105 z-10";
+            textClass = isBorderMode ? "text-rose-700 dark:text-rose-300 font-black" : "text-white font-black";
+            borderClass = isBorderMode ? "border-rose-500 border-2" : "border-rose-400 border-2";
             shadowClass = "shadow-rose-500/35";
           } else {
-            bgClass = isBorderMode ? "bg-rose-400/8" : "bg-rose-300/20 dark:bg-rose-900/30";
+            bgClass = isBorderMode ? "bg-transparent" : "bg-rose-300/20 dark:bg-rose-900/30";
             borderClass = "border-rose-400 border-2";
             textClass = "text-rose-700 dark:text-rose-300 font-heavy";
             shadowClass = "shadow-[0_0_8px_rgba(244,63,94,0.16)]";
@@ -115,9 +117,11 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         const blobShapes = ["rounded-[35%_65%_30%_70%]", "rounded-[60%_40%_70%_30%]", "rounded-[40%_60%_60%_40%]"];
         borderClass += " " + blobShapes[periodDay % blobShapes.length];
       } else if (isSelected) {
-        bgClass = "bg-[var(--primary)] shadow-xl scale-110 z-10";
-        textClass = "text-[var(--primary-content)] font-bold";
-        borderClass = "rounded-2xl border-white/20 border-2";
+        bgClass = isBorderMode ? "bg-transparent shadow-xl scale-110 z-10" : "bg-[var(--primary)] shadow-xl scale-110 z-10";
+        textClass = isBorderMode ? "text-[var(--primary)] font-bold" : "text-[var(--primary-content)] font-bold";
+        borderClass = isBorderMode
+          ? "rounded-2xl border-[var(--primary)] border-2"
+          : "rounded-2xl border-white/20 border-2";
       } else if (phase && phaseStyles[phase]) {
         const style = phaseStyles[phase];
         bgClass = style.bg;
@@ -207,32 +211,34 @@ export function Calendar({ onDateSelect, logs, cycles, userSettings }: CalendarP
         if (isPeriod) {
           const log = logs.find(l => l.date === dateString);
           if (log?.flow && log.flow !== "none") {
-            bgClass = "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.28)]";
-            textClass = "text-white scale-110";
+            bgClass = isBorderMode ? "bg-transparent shadow-[0_0_8px_rgba(244,63,94,0.28)]" : "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.28)]";
+            textClass = isBorderMode ? "text-rose-700 dark:text-rose-300 scale-110" : "text-white scale-110";
             borderClass = "border-rose-600 border-[1.5px]";
           } else {
-            bgClass = isBorderMode ? "bg-rose-400/10" : "bg-rose-200/70 dark:bg-rose-900/45";
+            bgClass = isBorderMode ? "bg-transparent" : "bg-rose-200 dark:bg-rose-900/45";
             textClass = "text-rose-700 dark:text-rose-300";
             borderClass = "border-rose-500 border-[1.5px] shadow-sm";
           }
         } else if (isOvulation) {
-          bgClass = isBorderMode ? "bg-emerald-400/10" : "bg-emerald-300/24 dark:bg-emerald-900/28";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-emerald-200 dark:bg-emerald-900/30";
           textClass = "text-emerald-700 dark:text-emerald-300 font-black";
           borderClass = "border-emerald-400 border-[1.5px] shadow-[0_0_8px_rgba(16,185,129,0.18)]";
         } else if (isToday) {
-          bgClass = "bg-[var(--primary)]";
-          textClass = "text-[var(--primary-content)]";
-          borderClass = "border-white/40 border ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0 scale-110";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-[var(--primary)]";
+          textClass = isBorderMode ? "text-[var(--primary)]" : "text-[var(--primary-content)]";
+          borderClass = isBorderMode
+            ? "border-[var(--primary)] border ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0 scale-110"
+            : "border-white/40 border ring-1 ring-[var(--primary)] ring-offset-1 dark:ring-offset-0 scale-110";
         } else if (phase === "menstrual") {
-          bgClass = isBorderMode ? "bg-rose-400/6" : "bg-rose-300/18 dark:bg-rose-900/28";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-rose-200 dark:bg-rose-900/30";
           textClass = "text-rose-700 dark:text-rose-300 font-bold";
           borderClass = "border-rose-400 border-[1.5px]";
         } else if (phase === "follicular") {
-          bgClass = isBorderMode ? "bg-amber-300/20 dark:bg-amber-900/28" : "bg-amber-300/16 dark:bg-amber-900/24";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-amber-200 dark:bg-amber-900/30";
           textClass = "text-amber-700 dark:text-amber-300 font-bold";
           borderClass = "border-amber-400 border-[1.5px]";
         } else if (phase === "luteal") {
-          bgClass = isBorderMode ? "bg-violet-300/20 dark:bg-violet-900/28" : "bg-violet-300/14 dark:bg-violet-900/24";
+          bgClass = isBorderMode ? "bg-transparent" : "bg-violet-200 dark:bg-violet-900/30";
           textClass = "text-violet-700 dark:text-violet-300";
           borderClass = "border-violet-400 border-[1.5px]";
         }

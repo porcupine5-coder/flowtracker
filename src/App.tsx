@@ -11,13 +11,13 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { BackgroundAnimationProvider } from "./components/BackgroundAnimationContext";
 import { AnimationToggleButton } from "./components/AnimationToggleButton";
 import { AIAssistant } from "./components/AIAssistant";
-import { HoneycombLoader } from "./components/HoneycombLoader";
+import { RingLoader } from "./components/RingLoader";
 
 function LoadingScreen({ darkMode, message = "Loading your dashboard..." }: { darkMode: boolean; message?: string }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-[var(--bg)] z-[9999]">
       <div className="flex flex-col items-center gap-4">
-        <HoneycombLoader size={48} />
+        <RingLoader size={48} />
         <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
           {message}
         </p>     
@@ -33,7 +33,7 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
     return <LoadingScreen darkMode={darkMode} message="Identifying user..." />;
   }
 
-  const isShreeya = loggedInUser?.email === "metheotakj@gmail.com";
+  const isPenguine = loggedInUser?.email === "metheotakj@gmail.com";
 
   return (
     <ParallaxBackground isDarkMode={darkMode} speed={0.6} centerContent={false} allowScroll density="medium">
@@ -74,7 +74,7 @@ function AuthenticatedApp({ darkMode, toggleDarkMode }: { darkMode: boolean; tog
             <Dashboard />
           </div>
         </main>
-        <AIAssistant isShreeya={isShreeya} />
+        <AIAssistant isPenguine={isPenguine} />
       </div>
     </ParallaxBackground>
   );

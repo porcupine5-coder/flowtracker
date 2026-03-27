@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
 interface PorcupineAnimationProps {
-  isShreeya: boolean;
+  isPenguine: boolean;
 }
 
-export function PorcupineAnimation({ isShreeya }: PorcupineAnimationProps) {
+export function PorcupineAnimation({ isPenguine }: PorcupineAnimationProps) {
   const [showGreeting, setShowGreeting] = useState(false);
   const [currentMessage, setCurrentMessage] = useState(0);
 
@@ -16,14 +16,14 @@ export function PorcupineAnimation({ isShreeya }: PorcupineAnimationProps) {
   ];
 
   useEffect(() => {
-    if (!isShreeya) return;
+    if (!isPenguine) return;
 
     const timer = setTimeout(() => {
       setShowGreeting(true);
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [isShreeya]);
+  }, [isPenguine]);
 
   useEffect(() => {
     if (!showGreeting) return;
@@ -35,7 +35,7 @@ export function PorcupineAnimation({ isShreeya }: PorcupineAnimationProps) {
     return () => clearInterval(interval);
   }, [showGreeting, messages.length]);
 
-  if (!isShreeya || !showGreeting) return null;
+  if (!isPenguine || !showGreeting) return null;
 
   return (
     <div className="fixed top-20 right-4 z-30 animate-bounce">

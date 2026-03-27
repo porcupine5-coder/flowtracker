@@ -8,7 +8,7 @@ import {
   moodRecommendations,
   Recommendation 
 } from "../lib/recommendations";
-import { HoneycombLoader } from "./HoneycombLoader";
+import { RingLoader } from "./RingLoader";
 
 interface LogModalProps {
   date: string;
@@ -399,7 +399,7 @@ export function LogModal({ date, onClose }: LogModalProps) {
           >
             {isSaving ? (
               <>
-                <HoneycombLoader size={16} label="Saving" />
+                <RingLoader size={16} label="Saving" />
                 Saving...
               </>
             ) : (
